@@ -96,6 +96,9 @@ const AuthForm = () => {
                                           onChange={handleInputChange}
                                           className="max-w-xs"
                                           color='secondary'
+                                          disabled={false}
+                                          name="password"
+                                          
                                    />
                             </div>
                             <div className="flex justify-center">
