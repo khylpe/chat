@@ -20,10 +20,14 @@ const addRoom = (roomName, roomDescription, roomMaxUser, requiresPassword, roomP
               };
               rooms.push(room);
        }
-       room.users.push({
-              username: username,
-              role: "creator"
-       });
+
+       // check if the user is already in the room before adding
+       if (!room.users.some(user => user.username === username)) {
+              room.users.push({
+                     username: username,
+                     role: "creator"
+              });
+       }
 };
 
 const removeRoom = (roomName, userName) => {
@@ -41,10 +45,13 @@ const removeRoom = (roomName, userName) => {
 const joinRoom = (roomName, userName) => {
        const room = getRoomByName(roomName);
        if (room) {
-              room.users.push({
-                     username: userName,
-                     role: "user"
-              });
+              // check if the user is already in the room before adding
+              if (!room.users.some(user => user.username === userName)) {
+                     room.users.push({
+                            username: userName,
+                            role: "user"
+                     });
+              }
        }
 };
 
