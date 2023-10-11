@@ -43,10 +43,21 @@ const removeRoom = (roomName, userName) => {
 };
 
 const joinRoom = (roomName, userName) => {
+       // Get the room by its name
        const room = getRoomByName(roomName);
+
        if (room) {
-              // check if the user is already in the room before adding
-              if (!room.users.some(user => user.username === userName)) {
+              // Check if the user is already in the room before adding
+              const isUserAlreadyInRoom = room.users.some(user => user.username === userName);
+              const isUserAdmin = room.users.some(user => user.username === userName && user.role === "admin");
+              const isRoomAlmostFull = room.users.length >= room.maxUsers - 1; // Check if the room is at (maxUsers - 1)
+
+              // Check if the user is the admin of the room, if he is not and the room is almost full, don't add him
+              if (!isUserAdmin && (isRoomAlmostFull || isUserAlreadyInRoom)) {
+                     return; // Return early without adding the user
+              }
+
+              if (!isUserAlreadyInRoom) {
                      room.users.push({
                             username: userName,
                             role: "user"
@@ -54,6 +65,7 @@ const joinRoom = (roomName, userName) => {
               }
        }
 };
+
 
 const leaveRoom = (roomName, userName) => {
        const room = getRoomByName(roomName);
@@ -88,6 +100,34 @@ function getDateAndTime() {
 
        return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
+const getUserRoom = (userName) => {
+       for (let room of rooms) {
+              if (room.users.some(user => user.username === userName)) {
+                     return room.name;
+              }
+       }
+       return false;
+};
+
+const isUserAdmin = (username) => {
+       if (getUserRoom(username)) {
+              const room = getRoomByName(getUserRoom(username));
+              if (room.users.some(user => user.username === username && user.role === "creator")) {
+                     return true;
+              }
+       }
+}
+
+const getRoomInfo = (roomName) => {
+       const room = getRoomByName(roomName);
+       if (room) {
+              // Create a copy of the room object to avoid mutating the original
+              const roomWithoutPassword = { ...room };
+              delete roomWithoutPassword.password;
+              return roomWithoutPassword;
+       }
+};
+
 
 module.exports = {
        rooms,
@@ -95,6 +135,10 @@ module.exports = {
        removeRoom,
        joinRoom,
        leaveRoom,
-       getRooms
+       getRooms,
+       getUserRoom,
+       getRoomInfo,
+       isUserAdmin,
+       getRoomInfo
 };
 

@@ -1,7 +1,7 @@
 import withAuth from "next-auth/middleware";
 
 const unauthorizedPages = ['/', '/login'];
-const authorizedPages = ['/dashboard']; // Modify this based on the pages you want to secure
+const authorizedPages = ['/CreateOrJoin']; // Modify this based on the pages you want to secure
 
 export default withAuth({
        callbacks: {
