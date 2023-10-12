@@ -44,39 +44,48 @@ export default function CreateOrJoin() {
        }, [socket, status]);
 
        return (
-              <div className="">
+              <div>
                      {isUserInRoom ? (
                             <div>
-                                   <Modal isOpen={true} isDismissable={false} scrollBehavior="inside" backdrop="blur" defaultOpen hideCloseButton>
+                                   <Modal size='2xl' isOpen={true} isDismissable={false} scrollBehavior="inside" backdrop="blur" className='p-5' defaultOpen hideCloseButton>
                                           <ModalContent>
                                                  {(onClose) => (
                                                         <>
-                                                               <ModalHeader className="flex flex-col gap-1">Room Found !</ModalHeader>
+                                                               <ModalHeader>
+                                                                      <div className='flex flex-col space-y-1'>
+                                                                             <span>Room Found !</span>
+                                                                             <span className='font-light text-sm'>You are already in a room, you can join it back !</span>
+                                                                      </div>
+                                                               </ModalHeader>
                                                                <ModalBody>
-                                                                      More information :
-
-                                                                      {/* Display all properties of roomInfo */}
                                                                       <Accordion variant='bordered'>
                                                                              <AccordionItem
+                                                                                    is
+                                                                                    subtitle="More information"
                                                                                     key={roomInfo.id}
                                                                                     aria-label={roomInfo.name}
-                                                                                    title={roomInfo.name}
+                                                                                    title={
+                                                                                           <>
+                                                                                                  {roomInfo.name}
+                                                                                                  {isUserAdmin && <Chip color="secondary" className='ml-3'>Owner</Chip>}
+                                                                                           </>
+                                                                                    }
                                                                                     indicator={<span>{`${roomInfo.users ? roomInfo.users.length : 0}/${roomInfo.maxUsers}`}</span>}
                                                                              >
 
-                                                                                    <div className="flex flex-col space-y-5">
+                                                                                    <div className="flex flex-col space-y-10 mt-3">
                                                                                            {isUserAdmin ? (
-                                                                                                  <div>You are the <span className='font-extrabold'>admin</span> of this room</div>
+                                                                                                  null
                                                                                            ) : (
                                                                                                   <div className='space-y-3'>
                                                                                                          <div>The owner of the room is<Chip color="primary">{roomInfo.owner}</Chip>
                                                                                                          </div>
                                                                                                   </div>
                                                                                            )}
-                                                                                           <span>{roomInfo.description}</span>
+                                                                                           <span className='text-justify'>{roomInfo.description}</span>
                                                                                            <div className="flex flex-row justify-between">
                                                                                                   <span className="text-default-500">{roomInfo.creationDateAndTime}</span>
-                                                                                                  <Button disableRipple disableAnimation color={roomInfo.requiresPassword ? "warning" : "secondary"} endContent={roomInfo.requiresPassword ? <FaLock></FaLock> : <FaLockOpen></FaLockOpen>}>
+                                                                                                  <Button className='hover:cursor-default' disableRipple disableAnimation variant='flat' color={roomInfo.requiresPassword ? "warning" : "success"} endContent={roomInfo.requiresPassword ? <FaLock></FaLock> : <FaLockOpen></FaLockOpen>}>
                                                                                                          {roomInfo.requiresPassword ? 'Password Required' : 'No password'}
                                                                                                   </Button>
                                                                                            </div>
