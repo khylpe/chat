@@ -26,8 +26,14 @@ const JoinRoom = () => {
                             console.error(err);
                             return;
                      } else {
-                            console.log("rooms from loading : ", response.rooms)
-                            setRooms(response.rooms);
+                            if (response.status === 'success') {
+                                   console.log("rooms from loading : ", response.rooms)
+                                   setRooms(response.rooms);
+                            } else if(response.status === 'error'){
+                                   alert(response.message);
+                            } else{
+                                   alert('Something went wrong');
+                            }
                      }
               });
 
@@ -86,7 +92,7 @@ const JoinRoom = () => {
                                           </AccordionItem>
                                    ))}
                             </Accordion>
-                     </ScrollShadow>                     
+                     </ScrollShadow>
               </div>
        );
 }

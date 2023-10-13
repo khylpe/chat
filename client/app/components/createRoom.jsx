@@ -27,7 +27,29 @@ const CreateRoom = () => {
        const handleSubmit = (event) => {
               event.preventDefault();
               let dataToSend = { ...formData, username: session.user.username };
-              socket.emit('addRoom', dataToSend);
+              socket.timeout(5000).emit('addRoom', dataToSend, (err, reponse) => {
+                     if (err) {
+                            console.error("test", err);
+                            return;
+                     } else {
+                            if (reponse.status === 'error') {
+                                   alert(reponse.message);
+                            } else if (reponse.status === 'success') {
+                                   setFormData({
+                                          roomName: '',
+                                          roomPassword: '',
+                                          roomDescription: '',
+                                          requiresPassword: false,
+                                          roomMaxUser: 2
+                                   });
+                                   console.log("success");
+                                   event.target.reset();
+                                   window.location.href = '/chat/'+reponse.roomID;
+                            } else {
+                                   alert('Something went wrong');
+                            }
+                     }
+              });
        };
 
        return (

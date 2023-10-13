@@ -113,7 +113,7 @@ const AuthForm = () => {
                             </div>
                      </form>
                      <div className="text-center">
-                            <Switch defaultSelected={0} onChange={() => setIsLoginMode(prevMode => !prevMode)} color="secondary">I don't have an account</Switch>
+                            <Switch defaultSelected={0} onChange={() => setIsLoginMode(prevMode => !prevMode)} color="secondary">I dont have an account</Switch>
                      </div>
               </div>
        );
