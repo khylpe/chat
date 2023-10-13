@@ -1,5 +1,5 @@
 // socketManager.js
-const { addRoom, removeRoom, joinRoom, leaveRoom, getRooms } = require('./RoomsManager');
+const { addRoom, removeRoom, joinRoom, leaveRoom, getRooms, getUserRoom, isUserAdmin, getRoomInfo } = require('./RoomsManager');
 
 module.exports = (server) => {
        const io = require("socket.io")(server, {
@@ -32,6 +32,14 @@ module.exports = (server) => {
 
               socket.on('removeRoom', (roomName, userName) => {
                      removeRoom(roomName, userName);
+              });
+
+              socket.on('checkIfUserInRoom', (userName, callback) => {
+                     const userRoom = getUserRoom(userName);
+                     userRoom ?
+                            callback({ value: true, isUserAdmin: isUserAdmin(userName), roomInfo: getRoomInfo(userRoom)})
+                            :
+                            callback({ value: false });
               });
 
               socket.on('disconnect', () => {
