@@ -28,13 +28,11 @@ app.use('/signup', signupRoute);
 
 const PORT = process.env.PORT || 3006;
 server.listen(PORT, () => {
-       console.log(`Server started on port ${PORT}`);
 });
 
 // Close the MongoDB connection when the Node process ends
 process.on('exit', () => {
        mongoose.connection.close(() => {
-              console.log('Mongoose connection disconnected on app termination');
               process.exit(0);
        });
 });

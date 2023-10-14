@@ -35,6 +35,7 @@ const Chat = ({ roomID }) => {
        const checkIfUserAuthorized = (username, roomID, socket) => {
               return new Promise((resolve, reject) => {
                      socket.timeout(5000).emit('checkIfUserAuthorized', { userName: username, roomID: roomID }, (err, response) => {
+
                             if (err) {
                                    reject(err);
                             } else {
@@ -43,7 +44,7 @@ const Chat = ({ roomID }) => {
                      });
               });
        };
-       
+
        if (isUserAuthorized === null) return null;  // or some loading state
        return isUserAuthorized ? <h1>Authorized</h1> : <h1>Not authorized</h1>;
 };

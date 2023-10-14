@@ -30,7 +30,7 @@ export default function CreateOrJoin() {
                      socket.emit('removeRoom', { roomID: roomInfo.id, userName: username, isUserAdmin: isUserAdmin })
                      :
                      socket.emit('leaveRoom', { roomID: roomInfo.id, userName: username });
-              
+
               setIsUserInRoom(false);
        };
 
@@ -40,10 +40,20 @@ export default function CreateOrJoin() {
                      console.log("response from checkIfUserInRoom : ", response)
                      if (err) {
                             console.error(err);
-                     } else if (response.value) {
-                            setIsUserInRoom(true);
-                            setRoomInfo(response.roomInfo);
-                            setIsUserAdmin(response.isUserAdmin);
+                     } else {
+                            if (response.status === 'success') {
+                                   if (response.value) {
+                                          setIsUserInRoom(true);
+                                          setRoomInfo(response.roomInfo);
+                                          setIsUserAdmin(response.isUserAdmin);
+                                   } else {
+                                          setIsUserInRoom(false);
+                                   }
+                            } else if (response.status === 'error') {
+                                   alert(response.message);
+                            } else {
+                                   alert('Something went wrong rrrrrrrrrrrrrrrrrrrrrrrr');
+                            }
                      }
               });
 

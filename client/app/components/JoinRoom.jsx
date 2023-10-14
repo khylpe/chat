@@ -1,15 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input, Divider, ScrollShadow, Listbox, ListboxItem, Chip, Button } from "@nextui-org/react";
-import io from 'socket.io-client';
 import { useSocket } from './../contexts/SocketContext';
 import { Accordion, AccordionItem } from "@nextui-org/react";
 import { FaLock, FaLockOpen, FaSearch } from "react-icons/fa";
+import { useSession } from 'next-auth/react';
 
 const JoinRoom = () => {
        const [searchTerm, setSearchTerm] = React.useState('');
        const [filteredRooms, setFilteredRooms] = React.useState([]);
        const socket = useSocket();
        const [rooms, setRooms] = React.useState([]);
+       const { data: session } = useSession();
+       const username = session?.user?.username;
+
+       const [passwordInputForRoom, setPasswordInputForRoom] = useState(null);
+       const [enteredPassword, setEnteredPassword] = useState('');
 
        useEffect(() => {
               const result = rooms.filter(room =>
@@ -29,10 +34,10 @@ const JoinRoom = () => {
                             if (response.status === 'success') {
                                    console.log("rooms from loading : ", response.rooms)
                                    setRooms(response.rooms);
-                            } else if(response.status === 'error'){
+                            } else if (response.status === 'error') {
                                    alert(response.message);
-                            } else{
-                                   alert('Something went wrong');
+                            } else {
+                                   alert('Something went wrong zzzz');
                             }
                      }
               });
@@ -40,13 +45,55 @@ const JoinRoom = () => {
               socket.on('updateRooms', (rooms) => {
                      console.log("rooms from update : ", rooms)
                      setRooms(rooms);
-
               });
 
               return () => {
                      socket.off('updateRooms');
               };
        }, [socket]);
+
+       const handleJoin = async (roomID, requiresPassword) => {
+              if (requiresPassword) {
+                     setPasswordInputForRoom(roomID);
+                     return;
+              }
+
+              await socket.emit('joinRoom', { roomID: roomID, username: username, password: null }, (err, response) => {
+                     if (err) {
+                            console.error(err);
+                            return;
+                     } else {
+                            if (response.status === 'success') {
+                                   setRooms(response.rooms);
+                                   window.location.href = '/chat/' + response.roomID;
+                            } else if (response.status === 'error') {
+                                   alert(response.message);
+                            } else {
+                                   alert('Something went wrong aaaaaaaaaaaaaaaaaaaaa');
+                            }
+                     }
+              });
+       }
+
+       const handlePasswordSubmit = (roomID) => {
+              socket.emit('joinRoom', { roomID: roomID, username: username, password: enteredPassword }, (err, response) => {
+                     if (err) {
+                            console.error(err);
+                            return;
+                     } else {
+                            if (response.status === 'success') {
+                                   setRooms(response.rooms);
+                                   window.location.href = '/chat/' + response.roomID;
+                            } else if (response.status === 'error') {
+                                   alert(response.message);
+                            } else {
+                                   alert('Something went wrong aaaaaaaaaaaaaaaaaaaaa');
+                            }
+                     }
+              });
+              setEnteredPassword('');
+              setPasswordInputForRoom(null);
+       };
 
        return (
               <div className="w-full border-small px-4 py-4 rounded-3xl border-default-200 dark:border-default-100">
@@ -84,16 +131,30 @@ const JoinRoom = () => {
                                                         <span>{room.description}</span>
                                                         <div className="flex flex-row justify-between">
                                                                <span className="text-default-500">{room.creationDateAndTime}</span>
-                                                               <Button color={room.requiresPassword ? "warning" : "secondary"} endContent={room.requiresPassword ? <FaLock></FaLock> : <FaLockOpen></FaLockOpen>}>
-                                                                      {room.requiresPassword ? 'Join (Password Required)' : 'Join'}
-                                                               </Button>
+                                                               {passwordInputForRoom === room.id ?
+                                                                      (<div className='flex flex-row space-x-3'>
+                                                                             <Input
+                                                                                    className=''
+                                                                                    type="password"
+                                                                                    placeholder="Enter room password"
+                                                                                    value={enteredPassword}
+                                                                                    onChange={e => setEnteredPassword(e.target.value)}
+                                                                             />
+                                                                             <Button onClick={() => handlePasswordSubmit(room.id)}>Join</Button>
+                                                                      </div>)
+                                                                      :
+                                                                      (<Button onClick={() => handleJoin(room.id, room.requiresPassword)} color={room.requiresPassword ? "warning" : "secondary"} endContent={room.requiresPassword ? <FaLock></FaLock> : <FaLockOpen></FaLockOpen>}>
+                                                                             {room.requiresPassword ? 'Join (Password Required)' : 'Join'}
+                                                                      </Button>)
+                                                               }
                                                         </div>
                                                  </div>
+
                                           </AccordionItem>
                                    ))}
                             </Accordion>
                      </ScrollShadow>
-              </div>
+              </div >
        );
 }
 

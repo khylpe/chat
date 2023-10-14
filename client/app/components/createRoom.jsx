@@ -24,10 +24,10 @@ const CreateRoom = () => {
               }));
        };
 
-       const handleSubmit = (event) => {
+       const handleSubmit = async (event) => {
               event.preventDefault();
               let dataToSend = { ...formData, username: session.user.username };
-              socket.timeout(5000).emit('addRoom', dataToSend, (err, reponse) => {
+              await socket.timeout(50000).emit('addRoom', dataToSend, (err, reponse) => {
                      if (err) {
                             console.error("test", err);
                             return;
@@ -46,7 +46,8 @@ const CreateRoom = () => {
                                    event.target.reset();
                                    window.location.href = '/chat/'+reponse.roomID;
                             } else {
-                                   alert('Something went wrong');
+                                   console.log("reponse : ", reponse);
+                                   alert('Something went wrong regerg');
                             }
                      }
               });

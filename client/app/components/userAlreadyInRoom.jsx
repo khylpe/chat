@@ -1,9 +1,7 @@
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Chip, Accordion, useDisclosure, AccordionItem } from "@nextui-org/react";
-import { FaLock, FaLockOpen, FaSearch } from "react-icons/fa";
+import { FaLock, FaLockOpen } from "react-icons/fa";
 import Link from "next/link";
-import { useSocket } from "../contexts/SocketContext";
-import { useSession } from "next-auth/react";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function UserAlreadyInRoom({ roomInfo, isUserAdmin, removeOrLeaveRoom }) {
        const [showConfirm, setShowConfirm] = useState(false);
@@ -97,6 +95,7 @@ export default function UserAlreadyInRoom({ roomInfo, isUserAdmin, removeOrLeave
                                                                <Button color="danger" variant="light" onClick={handleConfirmClick}>
                                                                       {isUserAdmin ? 'Delete room' : 'Leave room'}
                                                                </Button>
+
                                                                <Link href={'/chat/' + roomInfo.id}>
                                                                       <Button color="primary" >
                                                                              Join
