@@ -42,11 +42,9 @@ const CreateRoom = () => {
                                           requiresPassword: false,
                                           roomMaxUser: 2
                                    });
-                                   console.log("success");
                                    event.target.reset();
                                    window.location.href = '/chat/'+reponse.roomID;
                             } else {
-                                   console.log("reponse : ", reponse);
                                    alert('Something went wrong regerg');
                             }
                      }

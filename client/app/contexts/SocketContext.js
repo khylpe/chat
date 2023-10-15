@@ -19,9 +19,7 @@ export const SocketProvider = ({ children }) => {
        useEffect(() => { // Connect/disconnect socket on auth status change
               if (socket == null) return;
               if (status === 'authenticated') {
-                     console.log(session.user.username)
                      socket.auth = { username: session.user.username };
-                     console.log("auth : ",socket.auth)
                      socket.connect();
               } else {
                      socket.disconnect();

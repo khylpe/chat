@@ -41,7 +41,6 @@ const addRoom = async (roomName, roomDescription, roomMaxUser, requiresPassword,
                      creationDateAndTime: helper_getDateAndTime()
               };
               rooms.push(room);
-              console.log("🚀 ~ file: RoomsManager.js:30 ~ addRoom ~ rooms", rooms)
        } else {
               return { status: "error", message: "Room name already exists" }
        }

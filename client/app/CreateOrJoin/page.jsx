@@ -6,7 +6,6 @@ import { useSocket } from '../contexts/SocketContext';
 import { useSession } from 'next-auth/react';
 import UserAlreadyInRoom from '../components/userAlreadyInRoom';
 
-
 export default function CreateOrJoin() {
        const socket = useSocket();
        const [isUserInRoom, setIsUserInRoom] = useState(false);
@@ -37,7 +36,6 @@ export default function CreateOrJoin() {
        useEffect(() => {
               if (socket == null || status === "loading" || status === "unauthenticated") return;
               socket.timeout(5000).emit('checkIfUserInRoom', session.user.username, (err, response) => {
-                     console.log("response from checkIfUserInRoom : ", response)
                      if (err) {
                             console.error(err);
                      } else {
@@ -67,9 +65,7 @@ export default function CreateOrJoin() {
                             <div className="flex flex-row mt-20 justify-center m-20 space-x-10">
                                    <JoinRoom />
                                    <CreateRoom /></div>
-
                      )}
-                     {/* I'll add modal later */}
               </div>
        );
 }

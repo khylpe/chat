@@ -21,9 +21,12 @@ module.exports = (server) => {
               socket.on('joinRoom', async ({ username, roomID, password }, callback) => {
                      const response = await joinRoom(username, roomID, password);
                      if (response.status === 'error') {
-                            callback(response, null);
-                     } else {
+                            callback(null,response);
+                     } else if(response.status === 'success') {
                             callback(null, response);
+                     }
+                     else{
+                            callback(null, { status: "error", message: "An error occured" });
                      }
               });
 

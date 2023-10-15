@@ -4,17 +4,26 @@ import { useSocket } from './../contexts/SocketContext';
 import { Accordion, AccordionItem } from "@nextui-org/react";
 import { FaLock, FaLockOpen, FaSearch } from "react-icons/fa";
 import { useSession } from 'next-auth/react';
+import Snackbar from './snackbar';
 
 const JoinRoom = () => {
-       const [searchTerm, setSearchTerm] = React.useState('');
-       const [filteredRooms, setFilteredRooms] = React.useState([]);
        const socket = useSocket();
-       const [rooms, setRooms] = React.useState([]);
        const { data: session } = useSession();
        const username = session?.user?.username;
 
+       const [searchTerm, setSearchTerm] = React.useState('');
+       const [filteredRooms, setFilteredRooms] = React.useState([]);
+
+       const [rooms, setRooms] = React.useState([]);
+
        const [passwordInputForRoom, setPasswordInputForRoom] = useState(null);
        const [enteredPassword, setEnteredPassword] = useState('');
+
+       // For snackbar component
+       const [showSnackbar, setShowSnackbar] = useState(false);
+       const [sncackbarMessage, setSnackbarMessage] = useState('');
+       const [snackbarColor, setSnackbarColor] = useState('primary');
+       const [snackbarKey, setSnackbarKey] = useState(0);
 
        useEffect(() => {
               const result = rooms.filter(room =>
@@ -32,7 +41,6 @@ const JoinRoom = () => {
                             return;
                      } else {
                             if (response.status === 'success') {
-                                   console.log("rooms from loading : ", response.rooms)
                                    setRooms(response.rooms);
                             } else if (response.status === 'error') {
                                    alert(response.message);
@@ -43,7 +51,6 @@ const JoinRoom = () => {
               });
 
               socket.on('updateRooms', (rooms) => {
-                     console.log("rooms from update : ", rooms)
                      setRooms(rooms);
               });
 
@@ -78,21 +85,26 @@ const JoinRoom = () => {
        const handlePasswordSubmit = (roomID) => {
               socket.emit('joinRoom', { roomID: roomID, username: username, password: enteredPassword }, (err, response) => {
                      if (err) {
-                            console.error(err);
+                            console.error("err : ", err);
                             return;
                      } else {
                             if (response.status === 'success') {
                                    setRooms(response.rooms);
                                    window.location.href = '/chat/' + response.roomID;
                             } else if (response.status === 'error') {
-                                   alert(response.message);
+                                   setSnackbarMessage(response.message);
+                                   setSnackbarColor('warning');
+                                   setShowSnackbar(true);
+                                   setSnackbarKey(prevKey => prevKey + 1);  // Increment the key
                             } else {
-                                   alert('Something went wrong aaaaaaaaaaaaaaaaaaaaa');
+                                   setSnackbarMessage('Something went wrong');
+                                   setSnackbarColor('danger');
+                                   setShowSnackbar(true);
+                                   setSnackbarKey(prevKey => prevKey + 1);  // Increment the key
                             }
                      }
               });
               setEnteredPassword('');
-              setPasswordInputForRoom(null);
        };
 
        return (
@@ -149,11 +161,18 @@ const JoinRoom = () => {
                                                                }
                                                         </div>
                                                  </div>
-
                                           </AccordionItem>
                                    ))}
                             </Accordion>
                      </ScrollShadow>
+                     {showSnackbar && (
+                            <Snackbar
+                                   key={snackbarKey}  // Add this key prop
+                                   message={sncackbarMessage}
+                                   duration={10000}
+                                   color={snackbarColor}
+                            />
+                     )}
               </div >
        );
 }
