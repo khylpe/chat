@@ -12,7 +12,7 @@ export default function RootLayout({ children, session }) {
 
        return (
               <SessionProvider session={session}>
-                     <html lang="en" className='dark'>
+                     <html lang="en" className='dark overflow-y-hidden'>
                             <body className={inter.className}>
                                    <Author></Author>
                                    <Providers>
