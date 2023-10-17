@@ -10,8 +10,7 @@ import { Button, ButtonGroup } from "@nextui-org/react";
 import { FaUserAlt, FaBars } from "react-icons/fa";
 import { User } from "@nextui-org/react";
 import Link from "next/link";
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/react";
-
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem } from "@nextui-org/react";
 const ChatWithSocket = ({ params }) => (
        <SocketProvider>
               <Chat roomID={params.roomID} />
@@ -86,13 +85,13 @@ const Chat = ({ roomID }) => {
        return (
               isUserAuthorized ?
                      <div className="flex-grow flex flex-row space-x-7 p-5 h-screen mt-10">
-                            <div className="w-3/4 bg-zinc-800 rounded-lg p-5 h-5/6 flex flex-col justify-end">
+                            <div className="w-3/4 bg-zinc-800 rounded-lg p-3 h-5/6 flex flex-col justify-end">
                                    <div className="overflow-y-auto flex flex-col space-y-5 overflow-x-hidden">
                                           <div className="flex flex-col hover:bg-zinc-900 rounded-lg p-3 mr-2 items-start">
-                                                 <div className="flex justify-between w-full p-2">
+                                                 <div className="flex justify-between w-full p-2 pt-0 pl-0">
                                                         <Link href={""}>
                                                                <User
-                                                                      className="hover:bg-zinc-800"
+                                                                      className="hover:bg-zinc-800 p-2"
                                                                       name="Khylpe"
                                                                       description="15/10/2023"
                                                                       isFocusable={true}
@@ -102,7 +101,9 @@ const Chat = ({ roomID }) => {
                                                                arrow: "bg-default-200",
                                                         }}>
                                                                <DropdownTrigger>
-                                                                      <FaBars className="cursor-pointer"></FaBars>
+                                                                      <div className="h-fit">
+                                                                             <FaBars className="cursor-pointer"></FaBars>
+                                                                      </div>
                                                                </DropdownTrigger>
                                                                <DropdownMenu aria-label="Static Actions">
                                                                       <DropdownItem key="new">New file</DropdownItem>
