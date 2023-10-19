@@ -11,10 +11,10 @@ const JoinRoom = () => {
        const { data: session } = useSession();
        const username = session?.user?.username;
 
-       const [searchTerm, setSearchTerm] = React.useState('');
-       const [filteredRooms, setFilteredRooms] = React.useState([]);
+       const [searchTerm, setSearchTerm] = useState('');
+       const [filteredRooms, setFilteredRooms] = useState([]);
 
-       const [rooms, setRooms] = React.useState([]);
+       const [rooms, setRooms] = useState([]);
 
        const [passwordInputForRoom, setPasswordInputForRoom] = useState(null);
        const [enteredPassword, setEnteredPassword] = useState('');

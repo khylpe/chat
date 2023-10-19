@@ -21,11 +21,11 @@ module.exports = (server) => {
               socket.on('joinRoom', async ({ username, roomID, password }, callback) => {
                      const response = await joinRoom(username, roomID, password);
                      if (response.status === 'error') {
-                            callback(null,response);
-                     } else if(response.status === 'success') {
+                            callback(null, response);
+                     } else if (response.status === 'success') {
                             callback(null, response);
                      }
-                     else{
+                     else {
                             callback(null, { status: "error", message: "An error occured" });
                      }
               });
@@ -46,10 +46,14 @@ module.exports = (server) => {
 
               socket.on('checkIfUserInRoom', (userName, callback) => {
                      const userRoom = getUserRoom(userName);
-                     userRoom ?
-                            callback({ status: "success", value: true, isUserAdmin: isUserAdmin(userName), roomInfo: getRoomInfo(userRoom) })
-                            :
+
+                     if (userRoom) {
+                            const roomInfo = getRoomInfo({ roomName: userRoom });
+                            if (!roomInfo) return callback({ status: "error", message: "Something went wrong" });
+                            callback({ status: "success", value: true, isUserAdmin: isUserAdmin(userName), roomInfo: roomInfo })
+                     } else {
                             callback({ status: "success", value: false });
+                     }
               });
 
               socket.on('checkIfUserAuthorized', ({ userName, roomID }, callback) => {
@@ -66,6 +70,14 @@ module.exports = (server) => {
 
               socket.on('disconnect', () => {
                      setUserOffline(socket.handshake.auth.username, socket.id);
+              });
+
+              socket.on('getRoomInfo', ({ roomID, username }, callback) => {
+                     console.log("🚀 ~ file: socketManager.js:74 ~ socket.on ~ roomID, username:", roomID, username);
+                     const roomInfo = getRoomInfo({ roomID: roomID });
+                     if (!roomInfo) return callback({ status: "error", message: "Something went wrong" });
+                     callback({ status: "success", roomInfo: roomInfo });
+
               });
        });
 };

@@ -156,14 +156,28 @@ const isUserAdmin = (username) => {
               }
        }
 };
-const getRoomInfo = (roomName) => {
-       const room = helper_getRoomByName(roomName);
-       if (room) {
-              // Create a copy of the room object to avoid mutating the original
-              const roomWithoutPassword = { ...room };
-              delete roomWithoutPassword.password;
-              return roomWithoutPassword;
+const getRoomInfo = ({roomName, roomID}) => {
+       if(!roomName && !roomID) return false;
+       if(roomName){
+              const room = helper_getRoomByName(roomName);
+              if (room) {
+                     // Create a copy of the room object to avoid mutating the original
+                     const roomWithoutPassword = { ...room };
+                     delete roomWithoutPassword.password;
+                     return roomWithoutPassword;
+              }
        }
+
+       if(roomID){
+              const room = helper_getRoomByID(roomID);
+              if (room) {
+                     // Create a copy of the room object to avoid mutating the original
+                     const roomWithoutPassword = { ...room };
+                     delete roomWithoutPassword.password;
+                     return roomWithoutPassword;
+              }
+       }
+       return false;
 };
 const isUserAuthorized = (username, roomID) => {
        const room = helper_getRoomByID(roomID);
