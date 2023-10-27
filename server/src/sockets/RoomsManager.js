@@ -189,6 +189,25 @@ const isUserAuthorized = (username, roomID) => {
        }
        return false;
 };
+const addMessage = ({roomID, username, message}) => {
+       const id = uuidv4();
+       const room = helper_getRoomByID(roomID);
+       if (room) {
+              // check if message id already exists
+              const messageIndex = room.messages.findIndex(m => m.id === id);
+              if (messageIndex > -1) return {status: "error", message: "Message ID already exists"};
+
+              const dateAndTime = helper_getDateAndTime();
+              room.messages.push({
+                     username: username,
+                     message: message,
+                     dateAndTime: dateAndTime,
+                     id: id                     
+              });
+              return {status: "success", messageInfo: {username: username, message: message, dateAndTime: dateAndTime, id: id}};
+       }
+       return {status: "error", message: "Room not found"}
+}
 
 // ================
 // helper functions
@@ -225,7 +244,8 @@ module.exports = {
        isUserAdmin,
        isUserAuthorized,
        setUserOffline,
-       setUserOnline
+       setUserOnline,
+       addMessage
 };
 
 setInterval(() => { // Check if there are empty rooms and remove them. Check if there are rooms with no admin and remove them

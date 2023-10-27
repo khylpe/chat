@@ -1,6 +1,6 @@
 // socketManager.js
 
-const { addRoom, removeRoom, joinRoom, leaveRoom, getRooms, getUserRoom, isUserAdmin, getRoomInfo, isUserAuthorized, setUserOffline, setUserOnline } = require('./RoomsManager');
+const { addRoom, removeRoom, joinRoom, leaveRoom, getRooms, getUserRoom, isUserAdmin, getRoomInfo, isUserAuthorized, setUserOffline, setUserOnline, addMessage } = require('./RoomsManager');
 
 module.exports = (server) => {
        const io = require("socket.io")(server, {
@@ -62,6 +62,7 @@ module.exports = (server) => {
                      const isAuthorized = isUserAuthorized(userName, roomID);
                      if (isAuthorized) {
                             setUserOnline(socket.handshake.auth.username, roomID);
+                            socket.join(roomID);
                             callback({ status: "success" });
                      } else {
                             callback({ status: "error", message: "You are not authorized to join this room" });
@@ -79,5 +80,16 @@ module.exports = (server) => {
                      callback({ status: "success", roomInfo: roomInfo });
 
               });
+
+              socket.on('sendMessage', ({ roomID, username, message }, callback) => {
+                     const response = addMessage({ roomID, username, message });
+                     if (response.status === "success") {
+                            callback({ status: "success" });
+                            io.to(roomID).emit('newMessage', response.messageInfo);
+                     } else {
+                            callback({ status: "error", message: response.message });
+                     }
+              });
+                     
        });
 };

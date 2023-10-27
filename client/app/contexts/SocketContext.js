@@ -20,7 +20,14 @@ export const SocketProvider = ({ children }) => {
               if (socket == null) return;
               if (status === 'authenticated') {
                      socket.auth = { username: session.user.username };
-                     socket.connect();
+                     // check if socket is already connected
+                     if (!socket.connected){
+                            socket.connect();
+                            console.log('Socket connected! socket id: ', socket.id);
+                     }else{
+                            console.log('Socket already connected! socket id: ', socket.id);
+                     }
+
               } else {
                      socket.disconnect();
               }

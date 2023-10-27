@@ -50,7 +50,7 @@ export default function CreateOrJoin() {
                             } else if (response.status === 'error') {
                                    alert(response.message);
                             } else {
-                                   alert('Something went wrong rrrrrrrrrrrrrrrrrrrrrrrr');
+                                   alert('Something went wrong');
                             }
                      }
               });
