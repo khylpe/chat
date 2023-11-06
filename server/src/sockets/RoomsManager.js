@@ -15,7 +15,6 @@ const hashPassword = async (password) => {
               });
        });
 };
-
 const verifyPassword = async (password, hashedPassword) => {
        return new Promise((resolve, reject) => {
               bcrypt.compare(password, hashedPassword, (err, result) => {
@@ -24,7 +23,6 @@ const verifyPassword = async (password, hashedPassword) => {
               });
        });
 };
-
 const addRoom = async (roomName, roomDescription, roomMaxUser, requiresPassword, roomPassword, username) => {
        let room = helper_getRoomByName(roomName);
        if (!room) {
@@ -88,7 +86,7 @@ const joinRoom = async (username, roomID, password) => {
               if (room.requiresPassword) {
                      const isPasswordCorrect = await verifyPassword(password, room.password);
                      if (!isPasswordCorrect) return { status: "error", message: "Incorrect password" };
-              } 
+              }
 
               room.users.push({
                      username: username,
@@ -99,21 +97,17 @@ const joinRoom = async (username, roomID, password) => {
        }
        return { status: "error", message: "Room not found" };
 };
+const leaveRoom = (username, roomID) => {
+       // remove user from room and return status
+       const room = helper_getRoomByID(roomID);
 
-const leaveRoom = (username, socketID) => {
-       const userRoom = getUserRoom(username);
-       if (userRoom) {
-              const room = helper_getRoomByName(userRoom);
-              if (room) {
-                     // check corresponding socket id
-                     const userIndex = room.users.findIndex(user => user.username === username);
-                     if (userIndex > -1) {
-                            const socketIndex = room.users.findIndex(user => user.id === socketID);
-                            if (socketIndex > -1) {
-                                   room.users.splice(socketIndex, 1);
-                            }
-                     }
+       if (room) {
+              const userIndex = room.users.findIndex(user => user.username === username);
+              if (userIndex > -1) {
+                     room.users.splice(userIndex, 1);
+                     return { status: "success", username: username, roomID: roomID };
               }
+              return { status: "error", message: "User not found" };
        }
 };
 const setUserOnline = (username, roomID) => {
@@ -126,15 +120,22 @@ const setUserOnline = (username, roomID) => {
               }
        }
 };
-const setUserOffline = (username, roomID) => {
-       const room = helper_getRoomByID(roomID);
-       if (room) {
-              // check corresponding socket id
-              const userIndex = room.users.findIndex(user => user.username === username);
-              if (userIndex > -1) {
-                     room.users[userIndex].status = "offline";
+const setUserOffline = ({ username, roomList }) => {
+       if (!username || !roomList) return { status: "error", message: "Missing parameters" };
+
+       for (const roomID of roomList) {
+              const room = helper_getRoomByID(roomID);
+              if (room) {
+                     // check corresponding socket id
+                     const userIndex = room.users.findIndex(user => user.username === username);
+                     if (userIndex > -1) {
+                            room.users[userIndex].status = "offline";
+                            return { status: "success", username: username, roomID: roomID };
+                     }
+                     return { status: "error", message: "User not found" };
               }
        }
+       return { status: "error", message: "Room not found" };
 };
 const getRooms = () => {
        return rooms;
@@ -156,9 +157,9 @@ const isUserAdmin = (username) => {
               }
        }
 };
-const getRoomInfo = ({roomName, roomID}) => {
-       if(!roomName && !roomID) return false;
-       if(roomName){
+const getRoomInfo = ({ roomName, roomID }) => {
+       if (!roomName && !roomID) return false;
+       if (roomName) {
               const room = helper_getRoomByName(roomName);
               if (room) {
                      // Create a copy of the room object to avoid mutating the original
@@ -168,7 +169,7 @@ const getRoomInfo = ({roomName, roomID}) => {
               }
        }
 
-       if(roomID){
+       if (roomID) {
               const room = helper_getRoomByID(roomID);
               if (room) {
                      // Create a copy of the room object to avoid mutating the original
@@ -189,26 +190,78 @@ const isUserAuthorized = (username, roomID) => {
        }
        return false;
 };
-const addMessage = ({roomID, username, message}) => {
+const addMessage = ({ roomID, username, message }) => {
        const id = uuidv4();
        const room = helper_getRoomByID(roomID);
        if (room) {
               // check if message id already exists
               const messageIndex = room.messages.findIndex(m => m.id === id);
-              if (messageIndex > -1) return {status: "error", message: "Message ID already exists"};
+              if (messageIndex > -1) return { status: "error", message: "Message ID already exists" };
 
               const dateAndTime = helper_getDateAndTime();
               room.messages.push({
                      username: username,
                      message: message,
                      dateAndTime: dateAndTime,
-                     id: id                     
+                     id: id,
+                     isModified: false
               });
-              return {status: "success", messageInfo: {username: username, message: message, dateAndTime: dateAndTime, id: id}};
+              return { status: "success", messageInfo: { username: username, message: message, dateAndTime: dateAndTime, id: id } };
        }
-       return {status: "error", message: "Room not found"}
+       return { status: "error", message: "Room not found" }
 }
+const getUserInfo = ({username, roomID}) => {
+       const room = helper_getRoomByID(roomID);
+       if (room) {
+              const userIndex = room.users.findIndex(user => user.username === username);
+              if (userIndex > -1) {
+                     return room.users[userIndex];
+              }
+       }
+       return false;
+}
+const deleteMessage = ({ roomID, username, messageID }) => {
+       const room = helper_getRoomByID(roomID);
+       if (room) {
+              // check if message id already exists
+              const messageIndex = room.messages.findIndex(m => m.id === messageID);
+              if (messageIndex > -1) {
+                     if (room.messages[messageIndex].username === username || isUserAdmin(username)) {
+                            const messageInfo = room.messages[messageIndex];
+                            room.messages.splice(messageIndex, 1);
+                            return { status: "success", messageInfo: messageInfo };
+                     } else {
+                            return { status: "error", message: "You are not authorized to delete this message" };
+                     }
+              } else {
+                     return { status: "error", message: "Message not found" };
+              }
+       }
+       return { status: "error", message: "Room not found" }
+}
+const editMessage = ({ roomID, username, messageID, newMessage }) => {
+       console.log("🚀 ~ file: RoomsManager.js:246 ~ editMessage ~ newMessage:", newMessage);
+       
 
+       const room = helper_getRoomByID(roomID);
+       if (room) {
+              // check if message id already exists
+              const messageIndex = room.messages.findIndex(m => m.id === messageID);
+              if (messageIndex > -1) {
+                     if (room.messages[messageIndex].username === username) {
+                            room.messages[messageIndex].message = newMessage;
+                            room.messages[messageIndex].isModified = true;
+                            const messageInfo = room.messages[messageIndex];
+                            return { status: "success", messageInfo: messageInfo };
+                     } else {
+                            return { status: "error", message: "You are not authorized to edit this message" };
+                     }
+              } else {
+                     return { status: "error", message: "Message not found" };
+              }
+       }
+       return { status: "error", message: "Room not found" }
+}
 // ================
 // helper functions
 
@@ -245,7 +298,10 @@ module.exports = {
        isUserAuthorized,
        setUserOffline,
        setUserOnline,
-       addMessage
+       addMessage,
+       getUserInfo,
+       deleteMessage,
+       editMessage
 };
 
 setInterval(() => { // Check if there are empty rooms and remove them. Check if there are rooms with no admin and remove them

@@ -23,9 +23,7 @@ export const SocketProvider = ({ children }) => {
                      // check if socket is already connected
                      if (!socket.connected){
                             socket.connect();
-                            console.log('Socket connected! socket id: ', socket.id);
                      }else{
-                            console.log('Socket already connected! socket id: ', socket.id);
                      }
 
               } else {

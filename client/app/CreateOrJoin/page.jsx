@@ -26,9 +26,9 @@ export default function CreateOrJoin() {
 
        const removeOrLeaveRoom = () => {
               isUserAdmin ?
-                     socket.emit('removeRoom', { roomID: roomInfo.id, userName: username, isUserAdmin: isUserAdmin })
+                     socket.emit('removeRoom', { roomID: roomInfo.id, username: username, isUserAdmin: isUserAdmin })
                      :
-                     socket.emit('leaveRoom', { roomID: roomInfo.id, userName: username });
+                     socket.emit('leaveRoom', { roomID: roomInfo.id, username: username });
 
               setIsUserInRoom(false);
        };
@@ -54,7 +54,6 @@ export default function CreateOrJoin() {
                             }
                      }
               });
-
        }, [socket, status]);
 
        return (

@@ -1,19 +1,22 @@
-import { useState, useEffect } from 'react';
+// Snackbar.js
+import { useEffect } from 'react';
 import { Chip } from "@nextui-org/react";
+import { useSnackbar } from '../contexts/SnackbarContext';
 
-function Snackbar({ message, color, duration = 5000 }) {
-       const [visible, setVisible] = useState(true);
+function Snackbar({ message, color }) {
+       const { hideSnackbar } = useSnackbar();
 
        useEffect(() => {
-              const timer = setTimeout(() => setVisible(false), duration);
-              return () => clearTimeout(timer);
-       }, [duration]);
+              const timer = setTimeout(() => {
+                     hideSnackbar();
+              }, 5000);
 
-       if (!visible) return null;
+              return () => clearTimeout(timer);
+       }, [hideSnackbar]);
 
        return (
               <div className="fixed bottom-8 left-7">
-                     <Chip radius='sm' size='lg' color={color}>{message}</Chip>           
+                     <Chip radius='sm' size='lg' color={color}>{message}</Chip>
               </div>
        );
 }

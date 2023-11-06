@@ -1,29 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Input, Divider, ScrollShadow, Listbox, ListboxItem, Chip, Button } from "@nextui-org/react";
+import { Input, Divider, ScrollShadow, Chip, Button } from "@nextui-org/react";
 import { useSocket } from './../contexts/SocketContext';
 import { Accordion, AccordionItem } from "@nextui-org/react";
 import { FaLock, FaLockOpen, FaSearch } from "react-icons/fa";
 import { useSession } from 'next-auth/react';
-import Snackbar from './snackbar';
+import { useSnackbar } from '../contexts/SnackbarContext';
 
 const JoinRoom = () => {
+       const { showSnackbar } = useSnackbar();
        const socket = useSocket();
        const { data: session } = useSession();
        const username = session?.user?.username;
-
        const [searchTerm, setSearchTerm] = useState('');
        const [filteredRooms, setFilteredRooms] = useState([]);
-
        const [rooms, setRooms] = useState([]);
-
        const [passwordInputForRoom, setPasswordInputForRoom] = useState(null);
        const [enteredPassword, setEnteredPassword] = useState('');
-
-       // For snackbar component
-       const [showSnackbar, setShowSnackbar] = useState(false);
-       const [sncackbarMessage, setSnackbarMessage] = useState('');
-       const [snackbarColor, setSnackbarColor] = useState('primary');
-       const [snackbarKey, setSnackbarKey] = useState(0);
 
        useEffect(() => {
               const result = rooms.filter(room =>
@@ -54,8 +46,13 @@ const JoinRoom = () => {
                      setRooms(rooms);
               });
 
+              socket.on('roomRemoved', (roomID) => {
+                     setRooms(rooms.filter(room => room.id !== roomID));
+              });
+
               return () => {
                      socket.off('updateRooms');
+                     socket.off('roomRemoved');
               };
        }, [socket]);
 
@@ -83,24 +80,20 @@ const JoinRoom = () => {
        }
 
        const handlePasswordSubmit = (roomID) => {
+              showSnackbar({ message: 'Joining room...', color: 'info' });
+
               socket.emit('joinRoom', { roomID: roomID, username: username, password: enteredPassword }, (err, response) => {
                      if (err) {
-                            console.error("err : ", err);
+                            showSnackbar({ message: 'Something went wrong', color: 'danger' });
                             return;
                      } else {
                             if (response.status === 'success') {
                                    setRooms(response.rooms);
                                    window.location.href = '/chat/' + response.roomID;
                             } else if (response.status === 'error') {
-                                   setSnackbarMessage(response.message);
-                                   setSnackbarColor('warning');
-                                   setShowSnackbar(true);
-                                   setSnackbarKey(prevKey => prevKey + 1);  // Increment the key
+                                   showSnackbar({ message: response.message, color: 'danger' });
                             } else {
-                                   setSnackbarMessage('Something went wrong');
-                                   setSnackbarColor('danger');
-                                   setShowSnackbar(true);
-                                   setSnackbarKey(prevKey => prevKey + 1);  // Increment the key
+                                   showSnackbar({ message: 'Something went wrong', color: 'danger' });
                             }
                      }
               });
@@ -165,14 +158,6 @@ const JoinRoom = () => {
                                    ))}
                             </Accordion>
                      </ScrollShadow>
-                     {showSnackbar && (
-                            <Snackbar
-                                   key={snackbarKey}  // Add this key prop
-                                   message={sncackbarMessage}
-                                   duration={10000}
-                                   color={snackbarColor}
-                            />
-                     )}
               </div >
        );
 }
