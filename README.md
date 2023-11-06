@@ -1,10 +1,10 @@
 
-# <h1 align="center">Arthur CRAHÉ | Chat</h1>
+# Chat
 
 <p align="center">
-  <a href="https://nextui.org">
+  <a href="https://crahe-arthur.com/">
       <img width="20%" src="./client/app/img/logo.png" alt="Arthur CRAHÉ logo" />
-      
+      <h1 align="center">Arthur CRAHÉ</h1>
   </a>
 </p>
 
@@ -77,7 +77,6 @@ Start the project
     cd ../../client
     npm run dev
 ```
-
 
 ## Environment Variables
 
