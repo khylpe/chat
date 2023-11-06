@@ -56,16 +56,16 @@ const CreateRoom = () => {
                      <h2 className="text-white text-2xl text-center">Create a room</h2>
                      <form onSubmit={handleSubmit}>
                             <div className="flex space-x-4 mt-5">
-                                   <Input color='secondary' name='roomName' onChange={handleInputChange} value={formData.roomName} isRequired type="text" placeholder="My Room" label="Room Name" labelPlacement="outside"></Input>
-                                   <Input min={2} onChange={handleInputChange} value={formData.roomMaxUser} color='secondary' name='roomMaxUser' isRequired className='w-fit' type="number" placeholder="2" label="Max User" labelPlacement="outside" />
+                                   <Input color='default' name='roomName' onChange={handleInputChange} value={formData.roomName} isRequired type="text" placeholder="My Room" label="Room Name" labelPlacement="outside"></Input>
+                                   <Input min={2} onChange={handleInputChange} value={formData.roomMaxUser} color='default' name='roomMaxUser' isRequired className='w-fit' type="number" placeholder="2" label="Max User" labelPlacement="outside" />
                             </div>
                             <div className="flex flex-col mt-8">
-                                   <Textarea minRows={10} labelPlacement="outside" color='secondary' onChange={handleInputChange} value={formData.roomDescription} name="roomDescription" id="" cols="30" rows="10" label="description" placeholder='Your description'></Textarea>
+                                   <Textarea minRows={10} labelPlacement="outside" color='default' onChange={handleInputChange} value={formData.roomDescription} name="roomDescription" id="" cols="30" rows="10" label="description" placeholder='Your description'></Textarea>
                                    <div className="flex flex-row mt-14 justify-between">
                                           <Checkbox
                                                  checked={formData.requiresPassword}
                                                  onChange={handleInputChange}
-                                                 color='secondary'
+                                                 color='default'
                                                  name='requiresPassword'
                                           >
                                                  Require a password
@@ -79,12 +79,12 @@ const CreateRoom = () => {
                                                  value={formData.roomPassword}
                                                  onChange={handleInputChange}
                                                  className="max-w-xs w-fit"
-                                                 color='secondary'
+                                                 color='default'
                                                  // ... other props
                                                  disabled={!formData.requiresPassword}
                                           />
                                    </div>
-                                   <Button className='mt-10' color='secondary' type='submit'>Create</Button>
+                                   <Button className='mt-10' color='default' type='submit'>Create</Button>
                             </div>
                      </form>
               </div>

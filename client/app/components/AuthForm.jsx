@@ -73,7 +73,7 @@ const AuthForm = () => {
                                                  value={formData.username}
                                                  onChange={handleInputChange}
                                                  className="max-w-xs"
-                                                 color='secondary'
+                                                 color='default'
                                           />
                                    </div>
                             )}
@@ -86,7 +86,7 @@ const AuthForm = () => {
                                           onChange={handleInputChange}
                                           value={formData.email}
                                           className="max-w-xs"
-                                          color='secondary'
+                                          color='default'
                                    />
                             </div>
                             <div className="mb-6">
@@ -95,7 +95,7 @@ const AuthForm = () => {
                                           value={formData.password}
                                           onChange={handleInputChange}
                                           className="max-w-xs"
-                                          color='secondary'
+                                          color='default'
                                           disabled={false}
                                           name="password"
                                           
@@ -106,14 +106,14 @@ const AuthForm = () => {
                                           size="large"
                                           type="submit"
                                           variant="ghost"
-                                          color='secondary'
+                                          color='default'
                                    >
                                           {isLoginMode ? 'Log in' : 'Sign up'}
                                    </Button>
                             </div>
                      </form>
                      <div className="text-center">
-                            <Switch defaultSelected={0} onChange={() => setIsLoginMode(prevMode => !prevMode)} color="secondary">I dont have an account</Switch>
+                            <Switch defaultSelected={0} onChange={() => setIsLoginMode(prevMode => !prevMode)} color="default">I dont have an account</Switch>
                      </div>
               </div>
        );

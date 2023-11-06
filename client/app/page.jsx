@@ -9,7 +9,7 @@ export default function Page() {
                      <Image src={logo} alt="logo" width={500}
                             height={500}></Image >
                      <Link href={"/CreateOrJoin"}>
-                            <Button color='secondary' variant='shadow' className='mt-10'>Start chatting</Button>
+                            <Button color='default' variant='shadow' className='mt-10'>Start chatting</Button>
                      </Link>
               </div>
        )

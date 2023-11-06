@@ -246,9 +246,8 @@ const Chat = ({ roomID }) => {
                                    <form className="mt-5 flex flex-row items-center space-x-3" onSubmit={sendMessage}>
                                           <Textarea
                                                  placeholder="Enter your message"
-                                                 className=""
                                                  variant="bordered"
-                                                 color="secondary"
+                                                 color="default"
                                                  minRows={1}
                                           />
                                           <Button type="submit">Send</Button>

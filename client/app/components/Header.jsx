@@ -10,18 +10,18 @@ export default function Author() {
        return (
               <div className="flex justify-between m-3">
                      <a href="https://github.com/khylpe/chat" target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" color="secondary">
+                            <Button variant="ghost" color="default">
                                    <h1 className="text-3xl">Chat by Arthur CRAHE</h1>
                             </Button>
                      </a>
 
                      {status === "loading" && !pathname.includes('login') ? (
-                            <Button variant="shadow" color="secondary" isLoading>Loading</Button>
+                            <Button variant="shadow" color="default" isLoading>Loading</Button>
                      ) : status === "authenticated" ? (
-                            <Button variant="shadow" color="secondary">Welcome {session.user.username}</Button>
+                            <Button variant="shadow" color="default">Welcome {session.user.username}</Button>
                      ) : !pathname.includes('login') && (
                             <Link href="/login" passHref>
-                                   <Button variant="shadow" href="/login" color="secondary">Login / Signup</Button>
+                                   <Button variant="shadow" href="/login" color="default">Login / Signup</Button>
                             </Link>
                      )}
               </div>

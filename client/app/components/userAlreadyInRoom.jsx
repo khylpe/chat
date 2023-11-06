@@ -59,7 +59,7 @@ export default function UserAlreadyInRoom({ roomInfo, isUserAdmin, removeOrLeave
                                                                       title={
                                                                              <>
                                                                                     {roomInfo.name}
-                                                                                    {isUserAdmin && <Chip color="secondary" className='ml-3'>Owner</Chip>}
+                                                                                    {isUserAdmin && <Chip color="default" className='ml-3'>Owner</Chip>}
                                                                              </>
                                                                       }
                                                                       indicator={<span>{`${roomInfo.users ? roomInfo.users.length : 0}/${roomInfo.maxUsers}`}</span>}
@@ -70,7 +70,7 @@ export default function UserAlreadyInRoom({ roomInfo, isUserAdmin, removeOrLeave
                                                                                     null
                                                                              ) : (
                                                                                     <div className='space-y-3'>
-                                                                                           <div>The owner of the room is<Chip color="primary">{roomInfo.owner}</Chip>
+                                                                                           <div>The owner of the room is<Chip color="default">{roomInfo.owner}</Chip>
                                                                                            </div>
                                                                                     </div>
                                                                              )}
@@ -97,7 +97,7 @@ export default function UserAlreadyInRoom({ roomInfo, isUserAdmin, removeOrLeave
                                                                </Button>
 
                                                                <Link href={'/chat/' + roomInfo.id}>
-                                                                      <Button color="primary" >
+                                                                      <Button color="default" >
                                                                              Join
                                                                       </Button>
                                                                </Link>

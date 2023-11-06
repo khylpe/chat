@@ -119,7 +119,7 @@ const JoinRoom = () => {
                             name=""
                             id=""
                             label="Find a room"
-                            color='secondary'
+                            color='default'
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                      >
@@ -139,7 +139,7 @@ const JoinRoom = () => {
                                                  indicator={<span>{`${room.users ? room.users.length : 0}/${room.maxUsers}`}</span>}
                                           >
                                                  <div className="flex flex-col space-y-5">
-                                                        <Chip color="primary">{room.owner}</Chip>
+                                                        <Chip color="default">{room.owner}</Chip>
                                                         <span>{room.description}</span>
                                                         <div className="flex flex-row justify-between">
                                                                <span className="text-default-500">{room.creationDateAndTime}</span>
@@ -155,7 +155,7 @@ const JoinRoom = () => {
                                                                              <Button onClick={() => handlePasswordSubmit(room.id)}>Join</Button>
                                                                       </div>)
                                                                       :
-                                                                      (<Button onClick={() => handleJoin(room.id, room.requiresPassword)} color={room.requiresPassword ? "warning" : "secondary"} endContent={room.requiresPassword ? <FaLock></FaLock> : <FaLockOpen></FaLockOpen>}>
+                                                                      (<Button onClick={() => handleJoin(room.id, room.requiresPassword)} color={room.requiresPassword ? "warning" : "success"} endContent={room.requiresPassword ? <FaLock></FaLock> : <FaLockOpen></FaLockOpen>}>
                                                                              {room.requiresPassword ? 'Join (Password Required)' : 'Join'}
                                                                       </Button>)
                                                                }
