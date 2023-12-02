@@ -10,8 +10,8 @@ const NotAuthorized = () => {
                             <span className='text-3xl'>Access Denied</span>
 
                             <div className="mx-auto">
-          <Image src={logo} alt="logo" width={300} height={300} />
-        </div>
+                                   <Image src={logo} alt="logo" width={300} height={300} />
+                            </div>
                             <span className='text-3xl'>You are not allowed to access this room.</span>
 
                      </div>

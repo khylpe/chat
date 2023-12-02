@@ -240,9 +240,6 @@ const deleteMessage = ({ roomID, username, messageID }) => {
        return { status: "error", message: "Room not found" }
 }
 const editMessage = ({ roomID, username, messageID, newMessage }) => {
-       console.log("🚀 ~ file: RoomsManager.js:246 ~ editMessage ~ newMessage:", newMessage);
-       
-
        const room = helper_getRoomByID(roomID);
        if (room) {
               // check if message id already exists

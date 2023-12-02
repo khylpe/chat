@@ -21,14 +21,23 @@ export const SocketProvider = ({ children }) => {
               if (status === 'authenticated') {
                      socket.auth = { username: session.user.username };
                      // check if socket is already connected
-                     if (!socket.connected){
+                     if (!socket.connected) {
                             socket.connect();
-                     }else{
+                     } else {
+
                      }
 
               } else {
                      socket.disconnect();
               }
+
+              // socket.io.on("error", (error) => {
+              //        throw new Error(error.message);
+              // });
+
+              return () => {
+                     socket.off("connect");
+              };
        }, [socket, status]);
 
        return (

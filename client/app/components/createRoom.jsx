@@ -29,7 +29,6 @@ const CreateRoom = () => {
               let dataToSend = { ...formData, username: session.user.username };
               await socket.timeout(50000).emit('addRoom', dataToSend, (err, reponse) => {
                      if (err) {
-                            console.error("test", err);
                             return;
                      } else {
                             if (reponse.status === 'error') {
@@ -52,7 +51,7 @@ const CreateRoom = () => {
        };
 
        return (
-              <div className="w-full border-small px-4 py-4 rounded-3xl border-default-200 dark:border-default-100">
+              <div className="w-full border-small px-4 py-4 rounded-lg border-default-200 dark:border-default-100">
                      <h2 className="text-white text-2xl text-center">Create a room</h2>
                      <form onSubmit={handleSubmit}>
                             <div className="flex space-x-4 mt-5">

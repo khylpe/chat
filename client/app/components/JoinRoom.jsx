@@ -29,7 +29,6 @@ const JoinRoom = () => {
 
               socket.timeout(5000).emit('getRooms', (err, response) => {
                      if (err) {
-                            console.error(err);
                             return;
                      } else {
                             if (response.status === 'success') {
@@ -64,7 +63,6 @@ const JoinRoom = () => {
 
               await socket.emit('joinRoom', { roomID: roomID, username: username, password: null }, (err, response) => {
                      if (err) {
-                            console.error(err);
                             return;
                      } else {
                             if (response.status === 'success') {
@@ -101,7 +99,7 @@ const JoinRoom = () => {
        };
 
        return (
-              <div className="w-full border-small px-4 py-4 rounded-3xl border-default-200 dark:border-default-100">
+              <div className="w-full border-small px-4 py-4 rounded-lg border-default-200 dark:border-default-100">
                      <h2 className="text-white text-2xl text-center">Join a room</h2>
                      <Input
                             startContent={<FaSearch></FaSearch>}

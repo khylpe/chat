@@ -6,8 +6,10 @@ import { Switch } from "@nextui-org/react";
 import PasswordInput from './PasswordInput';
 import { signIn } from 'next-auth/react';
 const axios = require('axios');
+import { useSnackbar } from '../contexts/SnackbarContext';
 
 const AuthForm = () => {
+       const { setSnackbar } = useSnackbar();
        const [isLoginMode, setIsLoginMode] = useState(true);
        const [formData, setFormData] = useState({
               email: '',
@@ -33,7 +35,7 @@ const AuthForm = () => {
                             // Use the signIn method with the 'credentials' provider
                             const result = await signIn('credentials', {
                                    redirect: true,
-                                   callbackUrl: 'http://localhost:3000/CreateOrJoin',
+                                   callbackUrl: 'http://localhost:3000/createOrJoin',
                                    email,
                                    password
                             });
@@ -41,7 +43,6 @@ const AuthForm = () => {
                             if (result.error) {
                             }
                      } catch (error) {
-                            console.error("Error:", error.response?.data?.msg || error.message);
                      }
               } else {
                      try {
@@ -53,8 +54,22 @@ const AuthForm = () => {
                             }, {
                                    withCredentials: true
                             });
+
+                            if(response.data.status === "success") {
+                                   const result = await signIn('credentials', {
+                                          redirect: true,
+                                          callbackUrl: 'http://localhost:3000/createOrJoin',
+                                          email,
+                                          password
+                                   });
+                            }
+                            else{
+                                   setSnackbar({                                         
+                                          message: response.data.msg || "An error occured",
+                                          color: 'danger'
+                                   })
+                            }
                      } catch (error) {
-                            console.error("Error:", error.response.data.msg);
                      }
               }
        };
@@ -62,7 +77,7 @@ const AuthForm = () => {
        return (
               <div className="w-full max-w-sm mx-auto mt-20">
                      <form onSubmit={handleSubmit} className="shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                            <h2 className='mb-5 text-center'>Login</h2>
+                            <h2 className='mb-5 text-center text-2xl'>Login</h2>
                             {!isLoginMode && (
                                    <div className="mb-4">
                                           <Input

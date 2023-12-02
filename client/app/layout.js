@@ -9,6 +9,7 @@ import { Raleway } from 'next/font/google';
 const raleway = Raleway({
        subsets: ['latin'],
        display: 'swap',
+       weight: '700',
 })
 
 export default function RootLayout({ children, session }) {

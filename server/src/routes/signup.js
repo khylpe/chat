@@ -28,7 +28,11 @@ router.post('/', async (req, res) => {
               });
 
               await user.save();
-              res.json({ msg: 'Account created', user });
+
+              // Exclude the password field from the response
+              const responseUser = { email: user.email, username: user.username };
+
+              res.json({ status: "success", msg: 'Account created', user: responseUser });
        } catch (error) {
               res.status(500).send('Internal error');
        }

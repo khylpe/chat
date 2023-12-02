@@ -35,8 +35,6 @@ module.exports = (server) => {
                      const response = await joinRoom(username, roomID, password);
                      if (response.status === 'error') {
                             callback(null, response);
-                            console.log("🚀 ~ file: socketManager.js:38 ~ socket.on ~ response:", response);
-                            
                      } else if (response.status === 'success') {
 
                             callback(null, response);
@@ -50,7 +48,7 @@ module.exports = (server) => {
               });
               socket.on('leaveRoom', ({ roomID, username }) => {
                      const leaveRoomResult = leaveRoom(username, roomID);
-                     if (leaveRoomResult.status === "error") return console.log(leaveRoomResult.message);
+                     if (leaveRoomResult.status === "error") return;
 
                      if (leaveRoomResult.status === "success") {
                             socket.leave(roomID);

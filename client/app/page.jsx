@@ -6,9 +6,8 @@ import Link from 'next/link'
 export default function Page() {
        return (
               <div className='mt-36 flex flex-col items-center'>
-                     <Image src={logo} alt="logo" width={500}
-                            height={500}></Image >
-                     <Link href={"/CreateOrJoin"}>
+                     <Image src={logo} alt="logo" width={500} height={500}></Image >
+                     <Link href={"/createOrJoin"}>
                             <Button color='default' variant='shadow' className='mt-10'>Start chatting</Button>
                      </Link>
               </div>
