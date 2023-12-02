@@ -33,8 +33,8 @@ As a developer, this project has been an invaluable experience in working with a
 
 ## Screenshots
 
-<img width="100%" src="https://crahe-arthur.com/public_img/for_github/chat/joinOrCreateRoom.jpg" alt="Create or join a room" />
-<img width="100%" src="https://crahe-arthur.com/public_img/for_github/chat/chatRoom.jpg" alt="Chat room" />
+<img width="100%" src="https://crahe-arthur.com/public_files/img/joinOrCreateRoom.jpg" alt="Create or join a room" />
+<img width="100%" src="https://crahe-arthur.com/public_files/img/chatRoom.jpg" alt="Chat room" />
 
 ## Run Locally
 
