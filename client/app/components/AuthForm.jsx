@@ -76,8 +76,8 @@ const AuthForm = () => {
 
        return (
               <div className="w-full max-w-sm mx-auto mt-20">
-                     <form onSubmit={handleSubmit} className="shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                            <h2 className='mb-5 text-center text-2xl'>Login</h2>
+                     <form onSubmit={handleSubmit} className="shadow-md px-8 pt-6 pb-8 mb-4">
+                            <h2 className='mb-5 text-center text-2xl'>{isLoginMode ? "Login" : "Signup"}</h2>
                             {!isLoginMode && (
                                    <div className="mb-4">
                                           <Input
@@ -128,7 +128,7 @@ const AuthForm = () => {
                             </div>
                      </form>
                      <div className="text-center">
-                            <Switch defaultSelected={0} onChange={() => setIsLoginMode(prevMode => !prevMode)} color="default">I dont have an account</Switch>
+                            <Switch defaultSelected={0} onChange={() => setIsLoginMode(prevMode => !prevMode)} color="secondary">I dont have an account</Switch>
                      </div>
               </div>
        );

@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { Card, CardHeader, CardBody, CardFooter, Divider, Link } from "@nextui-org/react";
 import logo from './../img/logo.png'
 
-
 export default function ErrorLogin() {
        return (<>
               <div className="flex justify-center mt-64">
