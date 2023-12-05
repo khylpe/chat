@@ -1,6 +1,6 @@
 "use client"
 import JoinRoom from '../components/JoinRoom';
-import CreateRoom from '../components/CreateRoom';
+import CreateRoom from '../components/createRoom';
 import React, { useEffect, useState } from 'react';
 import { useSocket } from '../contexts/SocketContext';
 import { useSession } from 'next-auth/react';
