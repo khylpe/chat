@@ -49,7 +49,7 @@ module.exports = (server) => {
               });
               socket.on('leaveRoom', ({ roomID, username }) => {
                      const leaveRoomResult = leaveRoom(username, roomID);
-                     if (leaveRoomResult.status === "error") return;
+                     if (leaveRoomResult.status === "error") return console.log(leaveRoomResult.message);
 
                      if (leaveRoomResult.status === "success") {
                             socket.leave(roomID);

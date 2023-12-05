@@ -9,6 +9,7 @@ const connectDB = async () => {
                      useUnifiedTopology: true,
               });
        } catch (error) {
+              console.error('Could not connect to MongoDB', error);
               process.exit(1); // Arrête le processus si la connexion échoue
        }
 };
