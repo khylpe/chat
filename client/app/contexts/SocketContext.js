@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import { useSession } from 'next-auth/react';
+require('dotenv').config();
 
 const SocketContext = createContext();
 
@@ -9,7 +10,7 @@ export const SocketProvider = ({ children }) => {
        const [socket, setSocket] = useState(null);
        const { data: session, status } = useSession();
        useEffect(() => {
-              const newSocket = io('http://localhost:3006', {
+              const newSocket = io(process.env.NEXT_PUBLIC_SERVER_URL, {
                      autoConnect: false,
               });
               setSocket(newSocket);

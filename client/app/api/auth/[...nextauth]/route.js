@@ -11,7 +11,7 @@ const handler = NextAuth({
                      name: 'Credentials',                     
                      async authorize(credentials, req) {
                             try {
-                                   const response = await axios.post('http://localhost:3006/login', {
+                                   const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/login`, {
                                           email: credentials.email,
                                           password: credentials.password
                                    }, {
@@ -40,7 +40,7 @@ const handler = NextAuth({
        },
        pages: {
               signIn: '/../../../login', // /../../../../../.. (lol)
-              error: '/../../../errorLogin',
+              // error: '/../../../errorLogin',
        }
 });
 

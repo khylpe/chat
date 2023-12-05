@@ -1,12 +1,13 @@
 // AuthForm component
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input, Button } from '@nextui-org/react';
 import { Switch } from "@nextui-org/react";
 import PasswordInput from './PasswordInput';
 import { signIn } from 'next-auth/react';
 const axios = require('axios');
 import { useSnackbar } from '../contexts/SnackbarContext';
+require('dotenv').config();
 
 const AuthForm = () => {
        const { setSnackbar } = useSnackbar();
@@ -35,7 +36,7 @@ const AuthForm = () => {
                             // Use the signIn method with the 'credentials' provider
                             const result = await signIn('credentials', {
                                    redirect: true,
-                                   callbackUrl: 'http://localhost:3000/createOrJoin',
+                                   callbackUrl: `${process.env.NEXT_PUBLIC_CLIENT_URL}/createOrJoin`,
                                    email,
                                    password
                             });
@@ -47,7 +48,7 @@ const AuthForm = () => {
               } else {
                      try {
                             const username = formData.username;
-                            const response = await axios.post('http://localhost:3006/signup', {
+                            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/signup`, {
                                    username: username,
                                    email: email,
                                    password: password
@@ -55,16 +56,16 @@ const AuthForm = () => {
                                    withCredentials: true
                             });
 
-                            if(response.data.status === "success") {
+                            if (response.data.status === "success") {
                                    const result = await signIn('credentials', {
                                           redirect: true,
-                                          callbackUrl: 'http://localhost:3000/createOrJoin',
+                                          callbackUrl: `${process.env.NEXT_PUBLIC_CLIENT_URL}/createOrJoin`,
                                           email,
                                           password
                                    });
                             }
-                            else{
-                                   setSnackbar({                                         
+                            else {
+                                   setSnackbar({
                                           message: response.data.msg || "An error occured",
                                           color: 'danger'
                                    })
@@ -113,7 +114,7 @@ const AuthForm = () => {
                                           color='default'
                                           disabled={false}
                                           name="password"
-                                          
+
                                    />
                             </div>
                             <div className="flex justify-center">
