@@ -8,7 +8,7 @@ const handler = NextAuth({
        secret: process.env.NEXTAUTH_SECRET,
        providers: [
               CredentialsProvider({
-                     name: 'Credentials',                     
+                     name: 'Credentials',
                      async authorize(credentials, req) {
                             try {
                                    const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/login`, {
@@ -21,6 +21,7 @@ const handler = NextAuth({
                                    const user = response.data.user;
                                    return user;                                   
                             } catch (error) {
+                                   console.error('An error occured while trying to log. More information : ', error)
                                    return null;
                             }
                      }

@@ -7,6 +7,8 @@ const User = require('../models/User');
 router.post('/', async (req, res) => {
        try {
               const { email, password } = req.body;
+
+              console.log("received trying to login. On server side. emai: ", email, " password: ", password)
               let user = await User.findOne({ email });
 
               if (!user) {

@@ -19,14 +19,13 @@ const { addRoom,
 
 module.exports = (server) => {
        const io = require("socket.io")(server, {
-              cors: {
-                     origin: process.env.CLIENT_URL,
-                     credentials: true
-              }
+              cors: { origin: process.env.CLIENT_URL},
        });
 
        io.on('connection', (socket) => {
+              console.log("user connected")
               socket.on('getRooms', (callback) => {
+                     console.log("getting rooms")
                      callback({
                             status: 'success',
                             rooms: getRooms()
@@ -91,6 +90,7 @@ module.exports = (server) => {
                      }
               });
               socket.on('disconnecting', () => {
+                     console.log("user disconnecting")
                      const info = setUserOffline({ username: socket.handshake.auth.username, roomList: socket.rooms }); // it will return an object with the roomID and the username, or an error message
                      if (info.status === "success") {
                             const userInfo = getUserInfo({ username: info.username, roomID: info.roomID });
@@ -98,6 +98,7 @@ module.exports = (server) => {
                      }
               });
               socket.on('disconnect', () => {
+                     console.log("socket disconnect")
               });
               socket.on('getRoomInfo', ({ roomID, username }, callback) => {
                      const roomInfo = getRoomInfo({ roomID: roomID });
@@ -132,6 +133,5 @@ module.exports = (server) => {
                             callback({ status: "error", message: response.message });
                      }
               });
-
        });
 };

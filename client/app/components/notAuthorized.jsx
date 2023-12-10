@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from './../img/logo.png'
+// import logo from './../img/logo.png'
 import Image from 'next/image'
 
 const NotAuthorized = () => {
@@ -10,7 +10,7 @@ const NotAuthorized = () => {
                             <span className='text-3xl'>Access Denied</span>
 
                             <div className="mx-auto">
-                                   <Image src={logo} alt="logo" width={300} height={300} />
+                                   <Image src={"https://crahe-arthur.com/public_files/img/logo.png"} alt="logo" width={300} height={300} />
                             </div>
                             <span className='text-3xl'>You are not allowed to access this room.</span>
 
