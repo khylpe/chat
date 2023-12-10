@@ -30,6 +30,6 @@ export default withAuth({
        },
 });
 
-export const config = {
-       matcher: unprotectedPages,
-};
+// export const config = {
+//        matcher: unprotectedPages,
+// };
