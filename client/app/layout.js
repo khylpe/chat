@@ -26,3 +26,7 @@ export default function RootLayout({ children, session }) {
               </SessionProvider>
        );
 }
+
+// export const metadata = {
+//        title: 'Chat by Arthur CRAHE',
+// }

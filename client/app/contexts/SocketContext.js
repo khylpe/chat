@@ -10,9 +10,9 @@ export const SocketProvider = ({ children }) => {
        const { data: session, status } = useSession();
 
        useEffect(() => {
-              const newSocket = io('https://chat.crahe-arthur.com', {
-                     path: '/socketsrv/socket.io',
-                     withCredentials: true,
+              const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+                     path: process.env.NEXT_PUBLIC_SOCKET_PATH,
+                     // withCredentials: true,
               });
 
               setSocket(newSocket);

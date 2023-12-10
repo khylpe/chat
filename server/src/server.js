@@ -16,9 +16,9 @@ process.on('uncaughtException', function (err) {
 
 app.use(express.json());
 app.use(cors({
-       origin: process.env.CLIENT_URL, // Your client's URL
+       origin: process.env.CLIENT_URL,
        credentials: true
-   }));
+}));
 
 setupSocket(server);
 connectDB();
