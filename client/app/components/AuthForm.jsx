@@ -10,6 +10,7 @@ import { useSnackbar } from '../contexts/SnackbarContext';
 require('dotenv').config();
 
 const AuthForm = () => {
+
        const { setSnackbar } = useSnackbar();
        const [isLoginMode, setIsLoginMode] = useState(true);
        const [formData, setFormData] = useState({
@@ -32,7 +33,8 @@ const AuthForm = () => {
               const password = formData.password
 
               if (isLoginMode) {
-                     try {
+                     try {                            
+                            // console.log("received login try in authform. credentials are : " , email , " and : ", password)
                             // Use the signIn method with the 'credentials' provider
                             const result = await signIn('credentials', {
                                    redirect: true,
@@ -42,12 +44,15 @@ const AuthForm = () => {
                             });
 
                             if (result.error) {
+                                   console.log("an error happened: ", result.error)
                             }
                      } catch (error) {
+                            console.error("error while logging : ", error)
                      }
               } else {
                      try {
                             const username = formData.username;
+                            console.log("server url : ", process.env.NEXT_PUBLIC_SERVER_URL)
                             const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/signup`, {
                                    username: username,
                                    email: email,

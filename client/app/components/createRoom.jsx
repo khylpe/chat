@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from 'react';
 import { Input, Textarea, Checkbox, Button } from "@nextui-org/react";
 import PasswordInput from '../components/PasswordInput';
@@ -14,6 +15,7 @@ const CreateRoom = () => {
               requiresPassword: false,
               roomMaxUser: 2
        });
+       console.log("socket in create: ", socket)
 
        const handleInputChange = (event) => {
               const { name, value, type, checked } = event.target;
@@ -27,8 +29,10 @@ const CreateRoom = () => {
        const handleSubmit = async (event) => {
               event.preventDefault();
               let dataToSend = { ...formData, username: session.user.username };
+              console.log("socket: ", socket)
               await socket.timeout(50000).emit('addRoom', dataToSend, (err, reponse) => {
                      if (err) {
+                            console.error("error while creating room: ", err)
                             return;
                      } else {
                             if (reponse.status === 'error') {

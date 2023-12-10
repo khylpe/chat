@@ -1,12 +1,18 @@
 /** @type {import('next').NextConfig} */
+
+const dns = require("dns");
+dns.setDefaultResultOrder("ipv4first")
+
 const nextConfig = {
-       // webpack: (config, { isServer }) => {
-       //        if (!isServer) {
-       //               config.resolve.alias['bufferutil'] = false;
-       //               config.resolve.alias['utf-8-validate'] = false;
-       //        }
-       //        return config;
-       // }
+       images: {
+              remotePatterns: [
+                     {
+                            protocol: 'https',
+                            hostname: 'crahe-arthur.com',
+                            pathname: '/public_files/img/**',
+                     },
+              ],
+       },
 }
 
 module.exports = nextConfig;

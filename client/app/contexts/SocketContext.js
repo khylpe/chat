@@ -1,45 +1,71 @@
-// SocketContext.js
+"use client"
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import { useSession } from 'next-auth/react';
-require('dotenv').config();
 
 const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
        const [socket, setSocket] = useState(null);
        const { data: session, status } = useSession();
+
        useEffect(() => {
-              const newSocket = io(process.env.NEXT_PUBLIC_SERVER_URL, {
-                     autoConnect: false,
+              const newSocket = io('https://chat.crahe-arthur.com', {
+                     path: '/socketsrv/socket.io',
+                     withCredentials: true,
               });
+
               setSocket(newSocket);
-              return () => newSocket.close(); // Disconnect on cleanup
+
+              // Event listeners
+              newSocket.on('connect', () => {
+                     console.log('Connected to socket server, socket: ', socket);
+              });
+
+              // Clean up the connection
+              return () => {
+                     newSocket.disconnect();
+              };
        }, []);
 
-       useEffect(() => { // Connect/disconnect socket on auth status change
-              if (socket == null) return;
-              if (status === 'authenticated') {
+       useEffect(() => {
+              if (!socket) return;
+
+              const handleConnect = () => console.log("Socket connected.");
+              const handleError = error => console.error("Socket error:", error);
+              const handleReconnectAttempt = () => console.log("Attempting to reconnect...");
+              const handleReconnect = () => console.log("Socket reconnected.");
+              const handleReconnectError = error => console.error("Reconnect error:", error);
+              const handleReconnectFailed = () => console.log("Reconnection failed.");
+
+              socket.on("connect", handleConnect);
+              socket.on("error", handleError);
+              socket.on("reconnect_attempt", handleReconnectAttempt);
+              socket.on("reconnect", handleReconnect);
+              socket.on("reconnect_error", handleReconnectError);
+              socket.on("reconnect_failed", handleReconnectFailed);
+
+              if (session?.user?.username && status === "authenticated") {
                      socket.auth = { username: session.user.username };
-                     // check if socket is already connected
                      if (!socket.connected) {
+                            console.log("socket not connected yet, connecting it.")
                             socket.connect();
-                     } else {
-
                      }
-
               } else {
+                     console.log("user not authenticated. Disconnecting socket.")
                      socket.disconnect();
               }
 
-              // socket.io.on("error", (error) => {
-              //        throw new Error(error.message);
-              // });
-
               return () => {
-                     socket.off("connect");
+                     console.log("unbinding listeners")
+                     socket.off("connect", handleConnect);
+                     socket.off("error", handleError);
+                     socket.off("reconnect_attempt", handleReconnectAttempt);
+                     socket.off("reconnect", handleReconnect);
+                     socket.off("reconnect_error", handleReconnectError);
+                     socket.off("reconnect_failed", handleReconnectFailed);
               };
-       }, [socket, status]);
+       }, [socket, session]);
 
        return (
               <SocketContext.Provider value={socket}>

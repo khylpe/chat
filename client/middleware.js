@@ -1,7 +1,7 @@
 import withAuth from "next-auth/middleware";
 
 const unprotectedPages = ['/', '/login', '/errorLogin'];
-const protectedPages = ['/createOrJoin']; 
+const protectedPages = ['/createOrJoin'];
 
 export default withAuth({
        callbacks: {

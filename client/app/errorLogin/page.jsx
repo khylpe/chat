@@ -1,7 +1,7 @@
 "use client"
 import Image from 'next/image'
 import { Card, CardHeader, CardBody, CardFooter, Divider, Link } from "@nextui-org/react";
-import logo from './../img/logo.png'
+// import logo from './../img/logo.png'
 
 export default function ErrorLogin() {
        return (<>
@@ -12,7 +12,7 @@ export default function ErrorLogin() {
                                           alt="Arthur CRAHE logo"
                                           height={40}
                                           radius="sm"
-                                          src={logo}
+                                          src={"https://crahe-arthur.com/public_files/img/logo.png"}
                                           width={40}
                                    />
                                    <div className="flex flex-col">
