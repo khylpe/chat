@@ -1,8 +1,27 @@
-import { Chip } from "@nextui-org/react"
+import { Chip, Button, Tooltip } from "@nextui-org/react"
 import { HiOutlineStatusOnline, HiStatusOffline } from "react-icons/hi";
+import { useSession } from "next-auth/react"
+import { IoIosLogOut } from "react-icons/io";
+import { FaTrash } from "react-icons/fa";
+import { useSocket } from "../contexts/SocketContext";
+import { useRouter } from 'next/navigation';
 
+export default function RoomInfo({ roomName, owner, description, users, maxUsers, roomID }) {
+       const { data: session, status } = useSession();
+       const username = session?.user?.username;
+       const socket = useSocket();
+       const router = useRouter(); // Using useRouter hook
 
-export default function RoomInfo({ roomName, owner, description, users, maxUsers }) {
+       const handleLeaveRoom = () => {
+              socket.emit("leaveRoom", { roomID: roomID, username: username })
+              router.push('/createOrJoin'); // Redirecting user
+       }
+
+       const handleDeleteRoom = () => {
+              socket.emit('removeRoom', { roomID: roomID, username: username })
+              router.push('/createOrJoin'); // Redirecting user
+       }
+
        return (<>
               <div className="w-1/4 bg-zinc-800 rounded-lg p-5 h-5/6">
                      <div className="flex flex-col space-y-5 h-1/2">
@@ -22,6 +41,21 @@ export default function RoomInfo({ roomName, owner, description, users, maxUsers
                                                         </div>
                                                  )
                                           })}
+                                   </div>
+                                   <div className="flex flex-col justify-end h-full items-end">
+                                          {username === owner ? (
+                                                 <Tooltip showArrow={true} content="Delete room">
+                                                        <Button size="lg" onClick={() => { handleDeleteRoom() }} color="danger" isIconOnly>
+                                                               <FaTrash size={"1.4rem"}>
+                                                               </FaTrash >
+                                                        </Button>
+                                                 </Tooltip>)
+                                                 :
+                                                 (<Tooltip showArrow={true} content="Leave room">
+                                                        <Button onClick={()=> { handleLeaveRoom()}} size="lg" color="danger" isIconOnly>
+                                                               <IoIosLogOut size={"1.4rem"}></IoIosLogOut>
+                                                        </Button>
+                                                 </Tooltip>)}
                                    </div>
                             </div>
                      </div>
