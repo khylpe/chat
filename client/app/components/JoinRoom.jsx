@@ -5,9 +5,11 @@ import { Accordion, AccordionItem } from "@nextui-org/react";
 import { FaLock, FaLockOpen, FaSearch } from "react-icons/fa";
 import { useSession } from 'next-auth/react';
 import { useSnackbar } from '../contexts/SnackbarContext';
+import { useRouter } from 'next/navigation';
 
 const JoinRoom = () => {
        const { showSnackbar } = useSnackbar();
+       const router = useRouter();
        const socket = useSocket();
        const { data: session } = useSession();
        const username = session?.user?.username;
@@ -34,9 +36,9 @@ const JoinRoom = () => {
                             if (response.status === 'success') {
                                    setRooms(response.rooms);
                             } else if (response.status === 'error') {
-                                   alert(response.message);
+                                   showSnackbar({ message: response.message, color: 'danger' });
                             } else {
-                                   alert('Something went wrong zzzz');
+                                   showSnackbar({ message: 'Something went wrong', color: 'danger' });
                             }
                      }
               });
@@ -67,11 +69,11 @@ const JoinRoom = () => {
                      } else {
                             if (response.status === 'success') {
                                    setRooms(response.rooms);
-                                   window.location.href = '/chat/' + response.roomID;
+                                   router.push('/chat/' + response.roomID);
                             } else if (response.status === 'error') {
-                                   alert(response.message);
+                                   showSnackbar({ message: response.message, color: 'danger' });
                             } else {
-                                   alert('Something went wrong aaaaaaaaaaaaaaaaaaaaa');
+                                   showSnackbar({ message: 'Something went wrong', color: 'danger' });
                             }
                      }
               });
@@ -87,7 +89,7 @@ const JoinRoom = () => {
                      } else {
                             if (response.status === 'success') {
                                    setRooms(response.rooms);
-                                   window.location.href = '/chat/' + response.roomID;
+                                   router.push('/chat/' + response.roomID);
                             } else if (response.status === 'error') {
                                    showSnackbar({ message: response.message, color: 'danger' });
                             } else {

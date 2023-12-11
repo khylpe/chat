@@ -1,12 +1,16 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Input, Textarea, Checkbox, Button } from "@nextui-org/react";
+import { Input, Textarea, Checkbox, Button, user } from "@nextui-org/react";
 import PasswordInput from '../components/PasswordInput';
 import { useSession } from 'next-auth/react';
 import { useSocket } from './../contexts/SocketContext';
+import { useRouter } from 'next/navigation';
+import { useSnackbar } from '../contexts/SnackbarContext';
 
 const CreateRoom = () => {
        const socket = useSocket();
+       const router = useRouter();
+       const { showSnackbar } = useSnackbar();
        const { data: session, status } = useSession();
        const [formData, setFormData] = useState({
               roomName: '',
@@ -36,7 +40,7 @@ const CreateRoom = () => {
                             return;
                      } else {
                             if (reponse.status === 'error') {
-                                   alert(reponse.message);
+                                   showSnackbar({message: reponse.message, color: 'danger'});
                             } else if (reponse.status === 'success') {
                                    setFormData({
                                           roomName: '',
@@ -46,9 +50,9 @@ const CreateRoom = () => {
                                           roomMaxUser: 2
                                    });
                                    event.target.reset();
-                                   window.location.href = '/chat/'+reponse.roomID;
+                                   router.push('/chat/'+reponse.roomID);
                             } else {
-                                   alert('Something went wrong regerg');
+                                   showSnackbar({message: 'Something went wrong', color: 'danger'});
                             }
                      }
               });
@@ -68,7 +72,7 @@ const CreateRoom = () => {
                                           <Checkbox
                                                  checked={formData.requiresPassword}
                                                  onChange={handleInputChange}
-                                                 color='default'
+                                                 color='secondary'
                                                  name='requiresPassword'
                                           >
                                                  Require a password

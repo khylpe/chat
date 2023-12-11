@@ -6,9 +6,9 @@ import { SocketProvider } from "@/app/contexts/SocketContext";
 import React, { useEffect, useState } from "react";
 import { useSnackbar } from "@/app/contexts/SnackbarContext";
 import NotAuthorized from "@/app/components/notAuthorized";
-
 import RoomInfo from "@/app/components/roomInfo";
 import ChatLogs from "@/app/components/chatLogs";
+import { useRouter } from "next/navigation";
 
 const ChatWithSocket = ({ params }) => (
        <SocketProvider>
@@ -17,6 +17,7 @@ const ChatWithSocket = ({ params }) => (
 );
 
 const Chat = ({ roomID }) => {
+       const router = useRouter();
        const { showSnackbar } = useSnackbar();
        const [roomInfo, setRoomInfo] = useState();
        const { data: session, status } = useSession();
@@ -111,7 +112,7 @@ const Chat = ({ roomID }) => {
                      if (removedRoomID === roomID) { // Replace `currentRoomID` with the actual variable that holds the current room ID
                             showSnackbar({ message: `The room you were in has been removed`, color: 'danger' });
                             const timer = setTimeout(() => {
-                                   window.location.href = '/createOrJoin';
+                                   router.push('/createOrJoin');
                             }, 5000);
                             return () => clearTimeout(timer);
                      }
@@ -146,7 +147,7 @@ const Chat = ({ roomID }) => {
                             showSnackbar({ message: `You are not authorized to join this room`, color: 'danger' });
 
                             const timer = setTimeout(() => {
-                                   window.location.href = '/createOrJoin';
+                                   router.push('/createOrJoin');
                             }, 5000);
                             return () => clearTimeout(timer);
                      }
@@ -213,13 +214,11 @@ const Chat = ({ roomID }) => {
        return (
               isUserAuthorized && roomInfo ?
                      <div className="flex-grow flex flex-row space-x-7 p-5 h-screen mt-10">
-                            <ChatLogs messages={roomInfo.messages} isUserAdmin={isUserAdmin} roomID={roomID}></ChatLogs>
-                            <RoomInfo roomName={roomInfo.name} owner={roomInfo.owner} description={roomInfo.description} maxUsers={roomInfo.maxUsers} messages={roomInfo.messages} users={roomInfo.users}></RoomInfo>
+                            <ChatLogs messages={roomInfo.messages} roomID={roomID} isUserAdmin={isUserAdmin}></ChatLogs>
+                            <RoomInfo roomID={roomID} roomName={roomInfo.name} owner={roomInfo.owner} description={roomInfo.description} maxUsers={roomInfo.maxUsers} messages={roomInfo.messages} users={roomInfo.users}></RoomInfo>
                      </div>
-
                      :
                      (isUserAuthorized != null && <NotAuthorized></NotAuthorized>)
-
        );
 };
 

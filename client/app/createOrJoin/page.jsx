@@ -5,11 +5,11 @@ import React, { useEffect, useState } from 'react';
 import { useSocket } from '../contexts/SocketContext';
 import { useSession } from 'next-auth/react';
 import UserAlreadyInRoom from '../components/userAlreadyInRoom';
-
+import { useSnackbar } from '../contexts/SnackbarContext';
 
 export default function CreateOrJoin() {
        // throw new Error("error.message");
-
+       const { showSnackbar } = useSnackbar();
        const socket = useSocket();
        const [isUserInRoom, setIsUserInRoom] = useState(false);
        const [isUserAdmin, setIsUserAdmin] = useState(false);
@@ -29,7 +29,7 @@ export default function CreateOrJoin() {
 
        const removeOrLeaveRoom = () => {
               isUserAdmin ?
-                     socket.emit('removeRoom', { roomID: roomInfo.id, username: username, isUserAdmin: isUserAdmin })
+                     socket.emit('removeRoom', { roomID: roomInfo.id, username: username })
                      :
                      socket.emit('leaveRoom', { roomID: roomInfo.id, username: username });
 
@@ -50,9 +50,9 @@ export default function CreateOrJoin() {
                                           setIsUserInRoom(false);
                                    }
                             } else if (response.status === 'error') {
-                                   alert(response.message);
+                                   showSnackbar({ message: response.message, color: 'danger' });
                             } else {
-                                   alert('Something went wrong');
+                                   showSnackbar({ message: 'Something went wrong', color: 'danger' });
                             }
                      }
               });
