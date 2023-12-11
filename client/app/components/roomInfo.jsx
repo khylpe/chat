@@ -1,3 +1,4 @@
+"use client"
 import { Chip, Button, Tooltip } from "@nextui-org/react"
 import { HiOutlineStatusOnline, HiStatusOffline } from "react-icons/hi";
 import { useSession } from "next-auth/react"

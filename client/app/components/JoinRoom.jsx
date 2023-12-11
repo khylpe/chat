@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useState } from 'react';
 import { Input, Divider, ScrollShadow, Chip, Button } from "@nextui-org/react";
 import { useSocket } from './../contexts/SocketContext';
@@ -20,10 +21,12 @@ const JoinRoom = () => {
        const [enteredPassword, setEnteredPassword] = useState('');
 
        useEffect(() => {
-              const result = rooms.filter(room =>
-                     room.name.toLowerCase().includes(searchTerm.toLowerCase())
-              );
-              setFilteredRooms(result);
+              if (rooms) {
+                     const result = rooms.filter(room =>
+                            room.name.toLowerCase().includes(searchTerm.toLowerCase())
+                     );
+                     setFilteredRooms(result);
+              }
        }, [searchTerm, rooms]);
 
        useEffect(() => {
