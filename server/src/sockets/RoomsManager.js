@@ -56,15 +56,14 @@ const addRoom = async (roomName, roomDescription, roomMaxUser, requiresPassword,
        }
 
 };
-const removeRoom = (roomID, username, isUserAdmin) => {
+const removeRoom = (roomID, username) => {
        const room = helper_getRoomByID(roomID);
        if (room) {
-              if (isUserAdmin) {
-                     // Check if the user is the admin of the room (we check this again to avoid spoofing)
-                     if (!room.users.some(user => user.username === username && user.role === "admin")) {
-                            return; // Return early without removing the room
-                     }
+              // Check if the user is the admin of the room
+              if (!room.users.some(user => user.username === username && user.role === "admin")) {
+                     return; // Return early without removing the room
               }
+
               const roomIndex = rooms.findIndex(r => r.id === roomID);
               rooms.splice(roomIndex, 1);
        }
@@ -191,12 +190,21 @@ const isUserAuthorized = (username, roomID) => {
        return false;
 };
 const addMessage = ({ roomID, username, message }) => {
-       const id = uuidv4();
        const room = helper_getRoomByID(roomID);
        if (room) {
-              // check if message id already exists
+              // Check if user is in the room
+              if (!isUserAuthorized(username, roomID)) {
+                     return { status: "error", message: "User not in the room" };
+              }
+
+              // Generate a unique ID for the message
+              const id = uuidv4();
+
+              // Check if message id already exists (though it's highly unlikely with UUIDs)
               const messageIndex = room.messages.findIndex(m => m.id === id);
-              if (messageIndex > -1) return { status: "error", message: "Message ID already exists" };
+              if (messageIndex > -1) {
+                     return { status: "error", message: "Message ID already exists" };
+              }
 
               const dateAndTime = helper_getDateAndTime();
               room.messages.push({
@@ -210,7 +218,8 @@ const addMessage = ({ roomID, username, message }) => {
        }
        return { status: "error", message: "Room not found" }
 }
-const getUserInfo = ({username, roomID}) => {
+
+const getUserInfo = ({ username, roomID }) => {
        const room = helper_getRoomByID(roomID);
        if (room) {
               const userIndex = room.users.findIndex(user => user.username === username);
@@ -223,9 +232,15 @@ const getUserInfo = ({username, roomID}) => {
 const deleteMessage = ({ roomID, username, messageID }) => {
        const room = helper_getRoomByID(roomID);
        if (room) {
-              // check if message id already exists
+              // Check if user is in the room
+              if (!isUserAuthorized(username, roomID)) {
+                     return { status: "error", message: "User not in the room" };
+              }
+
+              // Check if message id exists
               const messageIndex = room.messages.findIndex(m => m.id === messageID);
               if (messageIndex > -1) {
+                     // Check if the user is the sender of the message or an admin
                      if (room.messages[messageIndex].username === username || isUserAdmin(username)) {
                             const messageInfo = room.messages[messageIndex];
                             room.messages.splice(messageIndex, 1);
@@ -239,12 +254,19 @@ const deleteMessage = ({ roomID, username, messageID }) => {
        }
        return { status: "error", message: "Room not found" }
 }
+
 const editMessage = ({ roomID, username, messageID, newMessage }) => {
        const room = helper_getRoomByID(roomID);
        if (room) {
-              // check if message id already exists
+              // Check if user is in the room
+              if (!isUserAuthorized(username, roomID)) {
+                     return { status: "error", message: "User not in the room" };
+              }
+
+              // Check if message id exists
               const messageIndex = room.messages.findIndex(m => m.id === messageID);
               if (messageIndex > -1) {
+                     // Check if the user is the sender of the message
                      if (room.messages[messageIndex].username === username) {
                             room.messages[messageIndex].message = newMessage;
                             room.messages[messageIndex].isModified = true;
@@ -259,6 +281,7 @@ const editMessage = ({ roomID, username, messageID, newMessage }) => {
        }
        return { status: "error", message: "Room not found" }
 }
+
 // ================
 // helper functions
 

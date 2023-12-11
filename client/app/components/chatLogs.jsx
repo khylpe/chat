@@ -8,7 +8,7 @@ import { useSocket } from "@/app/contexts/SocketContext"
 import Link from "next/link";
 import { useSnackbar } from "@/app/contexts/SnackbarContext";
 
-export default function ChatLogs({ messages, roomID }) {
+export default function ChatLogs({ messages, roomID, isUserAdmin }) {
        const messagesContainerRef = useRef(null);
        const { showSnackbar } = useSnackbar();
        const socket = useSocket();
@@ -104,7 +104,6 @@ export default function ChatLogs({ messages, roomID }) {
               socket.emit('deleteMessage', { messageID: messageId, roomID: roomID, username: username }, (err, response) => {
                      if (err) {
                             showSnackbar({ message: `Couldn't delete the message: ${err.message}`, color: 'danger' });
-
                      } else {
                             if (response.status === 'error') {
                                    showSnackbar({ message: `Couldn't delete the message: ${response.message}`, color: 'warning' });
@@ -165,7 +164,6 @@ export default function ChatLogs({ messages, roomID }) {
                                                                              <DropdownItem
                                                                                     key="edit"
                                                                                     startContent={<FaEdit />}
-
                                                                                     onClick={() => { handleEditMessage(message.id, messages[index].message) }}>
                                                                                     Modify message
                                                                              </DropdownItem>
@@ -173,7 +171,6 @@ export default function ChatLogs({ messages, roomID }) {
                                                                       {(message.username === username || isUserAdmin) &&
                                                                              <DropdownItem
                                                                                     startContent={<FaTrash />}
-
                                                                                     key="delete"
                                                                                     className="text-danger"
                                                                                     color="danger" onClick={() => deleteMessage(message.id)}>
@@ -206,7 +203,8 @@ export default function ChatLogs({ messages, roomID }) {
                                                         </form>
                                                  ) : (
                                                         <div className="ml-14">{message.message} {message.isModified ? (<span className="ml-1 text-sm font-thin">(modified)</span>) : null}</div>
-                                                 )}                                                 </div>
+                                                 )}
+                                          </div>
                                    ))}
                             </div>
                             <form className="mt-5 flex flex-row items-center space-x-3" onSubmit={sendMessage}>

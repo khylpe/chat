@@ -60,8 +60,8 @@ module.exports = (server) => {
                      io.emit("updateRooms", getRooms());
                      callback(addRoomResult); // Returns an object with the status of the operation, and a message if it failed
               });
-              socket.on('removeRoom', ({ roomID, username, isUserAdmin }) => {
-                     removeRoom(roomID, username, isUserAdmin);
+              socket.on('removeRoom', ({ roomID, username }) => {
+                     removeRoom(roomID, username);
                      io.emit("roomRemoved", roomID);
               });
               socket.on('checkIfUserInRoom', (username, callback) => {
