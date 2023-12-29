@@ -59,7 +59,7 @@ const EyeSlashFilledIcon = (props) => (
        </svg>
 );
 
-const PasswordInput = ({ value, onChange, name, label = "Password", disabled , ...rest }) => {
+const PasswordInput = ({ value, onChange, name, label = "Enter a password", disabled , ...rest }) => {
        const [isVisible, setIsVisible] = useState(false);
        const toggleVisibility = () => setIsVisible(!isVisible);
        return (

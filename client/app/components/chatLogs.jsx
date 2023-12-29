@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useEffect, useRef } from 'react';
 import { Button, Textarea, User, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/react";
 import { FaBars, FaClipboard, FaEdit, FaTrash } from "react-icons/fa";
@@ -82,7 +81,7 @@ export default function ChatLogs({ messages, roomID, isUserAdmin }) {
               e.preventDefault();
               const message = messageInput;
               if (!message) return;
-              socket.emit('sendMessage', { message: message, roomID: roomID, username: username }, (err, response) => {
+              socket.emit('sendMessage', { message: message, roomID: roomID, username: username }, (err, response) => { // TODO : Add timeout
                      if (err) {
                             showSnackbar({ message: `Couldn't send the message: ${err.message}`, color: 'danger' });
 
@@ -215,6 +214,7 @@ export default function ChatLogs({ messages, roomID, isUserAdmin }) {
                                           minRows={1}
                                           isClearable
                                           autoFocus
+                                          maxLength={2048}
                                           value={messageInput}  // Bind the state to the value of the Textarea
                                           onChange={(e) => setMessageInput(e.target.value)}  // Update the state when the input changes
                                           onKeyDown={(e) => {

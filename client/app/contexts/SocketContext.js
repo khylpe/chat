@@ -9,24 +9,33 @@ export const SocketProvider = ({ children }) => {
        const [socket, setSocket] = useState(null);
        const { data: session, status } = useSession();
 
+       const username = session?.user?.username;
+
        useEffect(() => {
-              const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
-                     path: process.env.NEXT_PUBLIC_SOCKET_PATH,
-                     // withCredentials: true,
-              });
 
-              setSocket(newSocket);
+              if (!username) return;
 
-              // Event listeners
-              newSocket.on('connect', () => {
-                     console.log('Connected to socket server, socket: ', socket);
-              });
+              if (!socket) {
+                     const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+                            path: process.env.NEXT_PUBLIC_SOCKET_PATH,
+                            query: {
+                                   username: username,
+                            }
+                            // withCredentials: true,
+                     });
+                     setSocket(newSocket);
+                     // Event listeners
+                     newSocket.on('connect', () => {
+                            console.log('Connected to socket server, socket: ', newSocket);
+                     });
 
-              // Clean up the connection
-              return () => {
-                     newSocket.disconnect();
-              };
-       }, []);
+                     // Clean up the connection
+                     return () => {
+                            newSocket.disconnect();
+                     };
+              }
+
+       }, [username]);
 
        useEffect(() => {
               if (!socket) return;

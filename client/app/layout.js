@@ -16,7 +16,7 @@ export default function RootLayout({ children, session }) {
        return (
               <SessionProvider session={session}>
                      <html lang="en" className='dark overflow-y-hidden'>
-                            <body className={raleway.className}>
+                            <body className={`${raleway.className}`}>
                                    <Author></Author>
                                    <Providers>
                                           {children}

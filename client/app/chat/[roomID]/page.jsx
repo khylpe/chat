@@ -34,6 +34,7 @@ const Chat = ({ roomID }) => {
                      checkAuthorizationAndFetchRoomInfo();
               });
               socket.on('newMessage', (messageInfo) => {
+                     console.log("received new message: ", messageInfo)
                      setRoomInfo(prevRoomInfo => { // Not so sure why, but we get here twice. So we need to check if the message already exists in the array before adding it again
                             const messageAlreadyExists = prevRoomInfo.messages.some(message => message.id === messageInfo.id);
                             if (messageAlreadyExists) {
@@ -43,6 +44,13 @@ const Chat = ({ roomID }) => {
                             newRoomInfo.messages.push(messageInfo);
                             return newRoomInfo;
                      });
+                     // Increment the message count
+                     setRoomInfo(prevRoomInfo => {
+                            const newRoomInfo = { ...prevRoomInfo };
+                            newRoomInfo.messageCount++;
+                            return newRoomInfo;
+                     });
+                     // Show a snackbar if the message is not from the current user
                      messageInfo.username !== username && showSnackbar({ message: `${messageInfo.username} sent a new message`, color: 'success' });
               });
               socket.on('userJoined', (userJoinedInfo) => {
@@ -117,6 +125,11 @@ const Chat = ({ roomID }) => {
                             return () => clearTimeout(timer);
                      }
               });
+              socket.on('roomInfoUpdated', (updatedRoomInfo) => {
+                     if (updatedRoomInfo.id === roomID) {
+                            setRoomInfo(updatedRoomInfo);
+                     }
+              });
 
               return () => {
                      socket.off('newMessage');
@@ -127,6 +140,7 @@ const Chat = ({ roomID }) => {
                      socket.off('userDisconnected');
                      socket.off('messageDeleted');
                      socket.off('messageEdited');
+                     socket.off('roomRemoved');
               };
        }, [socket, username]); // Dependencies array to ensure this effect runs only when socket or username changes
 
@@ -153,7 +167,7 @@ const Chat = ({ roomID }) => {
                      }
               }
               catch (error) {
-                     showSnackbar({ message: `Couldn't connect to the server : ${err.message}`, color: 'danger' });
+                     showSnackbar({ message: `Couldn't connect to the server : ${error.message}`, color: 'danger' });
               }
        };
 
@@ -215,7 +229,7 @@ const Chat = ({ roomID }) => {
               isUserAuthorized && roomInfo ?
                      <div className="flex-grow flex flex-row space-x-7 p-5 h-screen mt-10">
                             <ChatLogs messages={roomInfo.messages} roomID={roomID} isUserAdmin={isUserAdmin}></ChatLogs>
-                            <RoomInfo roomID={roomID} roomName={roomInfo.name} owner={roomInfo.owner} description={roomInfo.description} maxUsers={roomInfo.maxUsers} messages={roomInfo.messages} users={roomInfo.users}></RoomInfo>
+                            <RoomInfo roomID={roomID} roomName={roomInfo.name} owner={roomInfo.owner} description={roomInfo.description} maxUsers={roomInfo.maxUsers} messages={roomInfo.messages} users={roomInfo.users} expiryTime={roomInfo.expiryTime} messageCount={roomInfo.messageCount} maxMessages={roomInfo.maxMessages} expiryDate={roomInfo.expiryDate}></RoomInfo>
                      </div>
                      :
                      (isUserAuthorized != null && <NotAuthorized></NotAuthorized>)

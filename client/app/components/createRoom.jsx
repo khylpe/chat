@@ -17,9 +17,10 @@ const CreateRoom = () => {
               roomPassword: '',
               roomDescription: '',
               requiresPassword: false,
-              roomMaxUser: 2
+              roomMaxUsers: 2,
+              roomMaxMessages: 50, // Default value for roomMaxMessages
+              roomExpiryTime: 5,   // Default value for roomExpiryTime
        });
-       console.log("socket in create: ", socket)
 
        const handleInputChange = (event) => {
               const { name, value, type, checked } = event.target;
@@ -33,26 +34,27 @@ const CreateRoom = () => {
        const handleSubmit = async (event) => {
               event.preventDefault();
               let dataToSend = { ...formData, username: session.user.username };
-              console.log("socket: ", socket)
-              await socket.timeout(50000).emit('addRoom', dataToSend, (err, reponse) => {
+              await socket.timeout(50000).emit('addRoom', dataToSend, (err, response) => {
                      if (err) {
                             console.error("error while creating room: ", err)
                             return;
                      } else {
-                            if (reponse.status === 'error') {
-                                   showSnackbar({message: reponse.message, color: 'danger'});
-                            } else if (reponse.status === 'success') {
+                            if (response.status === 'error') {
+                                   showSnackbar({ message: response.message, color: 'danger' });
+                            } else if (response.status === 'success') {
                                    setFormData({
                                           roomName: '',
                                           roomPassword: '',
                                           roomDescription: '',
                                           requiresPassword: false,
-                                          roomMaxUser: 2
+                                          roomMaxUsers: 2,
+                                          roomMaxMessages: 50,
+                                          roomExpiryTime: 5,
                                    });
                                    event.target.reset();
-                                   router.push('/chat/'+reponse.roomID);
+                                   router.push('/chat/' + response.roomID);
                             } else {
-                                   showSnackbar({message: 'Something went wrong', color: 'danger'});
+                                   showSnackbar({ message: 'Something went wrong', color: 'danger' });
                             }
                      }
               });
@@ -64,11 +66,14 @@ const CreateRoom = () => {
                      <form onSubmit={handleSubmit}>
                             <div className="flex space-x-4 mt-5">
                                    <Input color='default' name='roomName' onChange={handleInputChange} value={formData.roomName} isRequired type="text" placeholder="My Room" label="Room Name" labelPlacement="outside"></Input>
-                                   <Input min={2} onChange={handleInputChange} value={formData.roomMaxUser} color='default' name='roomMaxUser' isRequired className='w-fit' type="number" placeholder="2" label="Max User" labelPlacement="outside" />
+                                   <Input min={2} max={30} onChange={handleInputChange} value={formData.roomMaxUsers} color='default' name='roomMaxUsers' isRequired className='w-24' type="number" placeholder="2" label="Max Users" labelPlacement="outside" />
                             </div>
-                            <div className="flex flex-col mt-8">
-                                   <Textarea minRows={10} labelPlacement="outside" color='default' onChange={handleInputChange} value={formData.roomDescription} name="roomDescription" id="" cols="30" rows="10" label="description" placeholder='Your description'></Textarea>
-                                   <div className="flex flex-row mt-14 justify-between">
+                            <div className="flex flex-col mt-8 space-y-5">
+                                   <Textarea minRows={3} maxRows={8} maxLength={1000} labelPlacement="outside" color='default' onChange={handleInputChange} value={formData.roomDescription} name="roomDescription" label="Description" placeholder='Your description'></Textarea>
+                                   <Input onChange={handleInputChange} value={formData.roomMaxMessages} defaultValue='50' min={10} max={200} name='roomMaxMessages' isRequired type="number" placeholder="50" label="Max Messages" labelPlacement="outside-left" ></Input>
+                                   <Input min={1} max={60} defaultValue='5' name='roomExpiryTime' onChange={handleInputChange} value={formData.roomExpiryTime} isRequired type="number" placeholder="min" label="Expiry time" labelPlacement="outside-left"></Input>
+
+                                   <div className="flex flex-row mt-14 justify-between items-center">
                                           <Checkbox
                                                  checked={formData.requiresPassword}
                                                  onChange={handleInputChange}
@@ -80,9 +85,8 @@ const CreateRoom = () => {
                                           <PasswordInput
                                                  // if checkbox is checked, make it required, else not required
                                                  isRequired={formData.requiresPassword}
-                                                 labelPlacement="outside"
                                                  name="roomPassword"
-                                                 placeholder=""
+                                                 placeholder="Password"
                                                  value={formData.roomPassword}
                                                  onChange={handleInputChange}
                                                  className="max-w-xs w-fit"
