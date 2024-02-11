@@ -9,22 +9,23 @@ import { useTheme } from 'next-themes'
 import signUp from "@/firebase/auth/signup";
 import { toast } from 'react-toastify';
 import signIn from "@/firebase/auth/login";
-import { signInWithPopup, GoogleAuthProvider, getAuth } from "firebase/auth"; // Make sure to import these
 import auth from "@/firebase/config"; // Ensure you have a reference to your Firebase auth object
 import { useRouter } from "next/navigation"; import { FirebaseError } from 'firebase/app';
-
+import signInWithGoogle from "@/firebase/auth/google";
+import { useState } from "react";
 export default function Component() {
        const router = useRouter();
-       const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
-       const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = React.useState(false);
-       const [email, setEmail] = React.useState("");
-       const [password, setPassword] = React.useState("");
-       const [confirmPassword, setConfirmPassword] = React.useState("");
-       const [[page, direction], setPage] = React.useState([0, 0]);
-       const [isEmailValid, setIsEmailValid] = React.useState(true);
-       const [isPasswordValid, setIsPasswordValid] = React.useState(true);
-       const [isConfirmPasswordValid, setIsConfirmPasswordValid] = React.useState(true);
+       const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+       const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+       const [email, setEmail] = useState("");
+       const [password, setPassword] = useState("");
+       const [confirmPassword, setConfirmPassword] = useState("");
+       const [[page, direction], setPage] = useState([0, 0]);
+       const [isEmailValid, setIsEmailValid] = useState(true);
+       const [isPasswordValid, setIsPasswordValid] = useState(true);
+       const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(true);
        const { resolvedTheme } = useTheme()
+       const [isLoginLoading, setIsLoginLoading] = useState(false);
 
        const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
        const toggleConfirmPasswordVisibility = () =>
@@ -85,38 +86,41 @@ export default function Component() {
                      setIsConfirmPasswordValid(false);
                      return;
               }
+              setIsLoginLoading(true);
               setIsConfirmPasswordValid(true);
 
               try {
                      const response = await signUp(email, password);
                      if (response && response.uid) {
                             try {
-                                   const userCredential = await signIn(email, password);
-                                   if (!userCredential.ok) {
-                                          switch (userCredential.status) {
-                                                 case 400:
-                                                        throw new Error('Login request was malformed. Please check your input.');
-                                                 case 401:
-                                                        throw new Error('Invalid credentials. Please try again.');
-                                                 case 403:
-                                                        throw new Error('Access denied. You do not have permission to perform this action.');
-                                                 case 404:
-                                                        throw new Error('Login endpoint not found. Please check the URL.');
-                                                 case 500:
-                                                        throw new Error('Internal server error. Please try again later.');
-                                                 default:
-                                                        throw new Error('Login failed due to server error');
-                                          }
+                                   const response = await signIn(email, password);
+                                   if (response.statusCode !== 200) {
+                                          toast.error(response.message, { position: 'top-left', theme: resolvedTheme });
                                    } else {
-                                          toast.success('Login successful', { position: 'top-right', theme: resolvedTheme });
-                                          router.replace('/profile');
+                                          const currentUser = auth.currentUser;
+                                          const displayName = currentUser?.displayName;
+                                          const email = currentUser?.email;
+
+                                          let welcomeMessage = "Welcome!";
+                                          if (displayName) {
+                                                 welcomeMessage = `Welcome ${displayName}!`;
+                                          } else if (email) {
+                                                 welcomeMessage = `Welcome ${email}!`;
+                                          }
+
+                                          if (welcomeMessage) {
+                                                 toast.success(welcomeMessage, { position: 'top-left', theme: resolvedTheme });
+                                          }
+                                          router.replace('/home');
                                    }
                             } catch (error) {
                                    let errorMessage = 'An unexpected error occurred during login.';
+
                                    if (error instanceof Error) {
+                                          console.log("🚀 ~ handleLogin ~ error:", error);
                                           errorMessage = error.message;
                                    }
-                                   toast.error(errorMessage, { position: 'top-right', theme: resolvedTheme }); // Use the local variable instead
+                                   toast.error(errorMessage, { position: 'top-left', theme: resolvedTheme }); // Use the local variable instead
                             }
                      }
               } catch (error) {
@@ -125,26 +129,48 @@ export default function Component() {
                      } else {
                             toast.error('An unexpected error occurred', { position: 'top-right', theme: resolvedTheme });
                      }
+              } finally {
+                     setIsLoginLoading(false);
               }
        };
 
        const handleGoogleSignUp = async () => {
+              setIsLoginLoading(true);
               try {
-                  // Ensure this call properly awaits the Firebase Auth instance
-                  const provider = new GoogleAuthProvider();
-                  const result = await signInWithPopup(auth, provider);
-                  // Handle successful authentication
-                  toast.success('Login successful', { position: 'top-right', theme: resolvedTheme });
-                  router.replace('/profile');
+                     const response = await signInWithGoogle();
+
+                     if (response.statusCode !== 200) {
+                            toast.error(response.message, { position: 'top-left', theme: resolvedTheme });
+                     } else {
+                            const currentUser = auth.currentUser;
+                            const displayName = currentUser?.displayName;
+                            const email = currentUser?.email;
+
+                            let welcomeMessage = "Welcome!";
+                            if (displayName) {
+                                   welcomeMessage = `Welcome ${displayName}!`;
+                            } else if (email) {
+                                   welcomeMessage = `Welcome ${email}!`;
+                            }
+
+                            if (welcomeMessage) {
+                                   toast.success(welcomeMessage, { position: 'top-left', theme: resolvedTheme });
+                            }
+                            router.replace('/home');
+                     }
               } catch (error) {
-                  // Handle errors appropriately
-                  if (error instanceof FirebaseError) {
-                      toast.error(`Login failed: ${error.message}`, { position: 'top-right', theme: resolvedTheme });
-                  } else {
-                      toast.error('Login failed: An unexpected error occurred', { position: 'top-right', theme: resolvedTheme });
-                  }
+                     let errorMessage = 'An unexpected error occurred during login.';
+
+                     if (error instanceof Error) {
+                            console.log("🚀 ~ handleLogin ~ error:", error);
+                            errorMessage = error.message;
+                     }
+                     toast.error(errorMessage, { position: 'top-left', theme: resolvedTheme }); // Use the local variable instead
               }
-          };
+              finally {
+                     setIsLoginLoading(false);
+              }
+       };
 
        return (
               <div
@@ -197,6 +223,7 @@ export default function Component() {
                                    >
                                           {page === 0 && (
                                                  <Input
+                                                        isDisabled={isLoginLoading}
                                                         isRequired
                                                         label="Email Address"
                                                         name="email"
@@ -212,6 +239,7 @@ export default function Component() {
                                           )}
                                           {page === 1 && (
                                                  <Input
+                                                        isDisabled={isLoginLoading}
                                                         autoFocus
                                                         isRequired
                                                         endContent={
@@ -243,6 +271,7 @@ export default function Component() {
                                           )}
                                           {page === 2 && (
                                                  <Input
+                                                        isDisabled={isLoginLoading}
                                                         autoFocus
                                                         isRequired
                                                         endContent={
@@ -273,7 +302,8 @@ export default function Component() {
                                                         size="lg"
                                                  />
                                           )}
-                                          <Button fullWidth color="primary" type="submit" size="lg">
+                                          <Button fullWidth color="primary" type="submit" size="lg" isDisabled={isLoginLoading} isLoading={isLoginLoading}
+                                          >
                                                  {page === 0
                                                         ? "Continue with Email"
                                                         : page === 1
@@ -301,17 +331,21 @@ export default function Component() {
                                                                startContent={<Icon icon="flat-color-icons:google" width={24} />}
                                                                variant="bordered"
                                                                size="lg"
-                                                               onClick={handleGoogleSignUp} // Add this line
+                                                               onClick={handleGoogleSignUp}
+                                                               isDisabled={isLoginLoading}
+                                                               isLoading={isLoginLoading}
                                                         >
                                                                Continue with Google
                                                         </Button>
-                                                        <Button
+                                                        {/* <Button
                                                                startContent={<Icon className="text-default-500" icon="fe:github" width={24} />}
                                                                variant="bordered"
                                                                size="lg"
+                                                               isDisabled={isLoginLoading}
+                                                               isLoading={isLoginLoading}
                                                         >
                                                                Continue with Github
-                                                        </Button>
+                                                        </Button> */}
                                                  </div>
                                           </motion.div>
                                    )}

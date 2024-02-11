@@ -7,10 +7,15 @@ import { useTheme } from 'next-themes';
 import signIn from "@/firebase/auth/login";
 import { toast } from 'react-toastify';
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { on } from "events";
 import auth from "@/firebase/config";
-
+import signInWithGoogle from "@/firebase/auth/google";
+interface CustomError {
+       code: string;
+       message: string;
+       statusCode: number;
+}
 export default function LoginComponent() {
        const router = useRouter();
        const { resolvedTheme } = useTheme();
@@ -27,36 +32,35 @@ export default function LoginComponent() {
               setIsLoading(true);
               setLoginError('');
 
-              if(!email || !password || email === '' || password === '' || email === null || password === null || email === undefined || password === undefined || email.trim() === '' || password.trim() === '' || email.length === 0 || password.length === 0){
+              if (!email || !password || email === '' || password === '' || email === null || password === null || email === undefined || password === undefined || email.trim() === '' || password.trim() === '' || email.length === 0 || password.length === 0) {
                      setIsLoading(false);
                      return toast.error('Please fill in all the fields', { position: 'top-left', theme: resolvedTheme });
               }
 
               try {
-                     const userCredential = await signIn(email, password);
-                     if (!userCredential.ok) {
-                            switch (userCredential.status) {
-                                   case 400:
-                                          throw new Error('Login request was malformed. Please check your input.');
-                                   case 401:
-                                          throw new Error('Invalid credentials. Please try again.');
-                                   case 403:
-                                          throw new Error('Access denied. You do not have permission to perform this action.');
-                                   case 404:
-                                          throw new Error('Login endpoint not found. Please check the URL.');
-                                   case 500:
-                                          throw new Error('Internal server error. Please try again later.');
-                                   default:
-                                          throw new Error('Login failed due to server error');
-                            }
+                     const response = await signIn(email, password);
+                     if (response.statusCode !== 200) {
+                            toast.error(response.message, { position: 'top-left', theme: resolvedTheme });
                      } else {
-                            const user = await userCredential.json();
-                            auth.updateCurrentUser(user);
-                            toast.success('Login successful', { position: 'top-left', theme: resolvedTheme});
-                            router.replace('/profile');
+                            const currentUser = auth.currentUser;
+                            const displayName = currentUser?.displayName;
+                            const email = currentUser?.email;
+
+                            let welcomeMessage = "Welcome!";
+                            if (displayName) {
+                                   welcomeMessage = `Welcome ${displayName}!`;
+                            } else if (email) {
+                                   welcomeMessage = `Welcome ${email}!`;
+                            }
+
+                            if (welcomeMessage) {
+                                   toast.success(welcomeMessage, { position: 'top-left', theme: resolvedTheme });
+                            }
+                            router.replace('/home');
                      }
               } catch (error) {
                      let errorMessage = 'An unexpected error occurred during login.';
+
                      if (error instanceof Error) {
                             console.log("🚀 ~ handleLogin ~ error:", error);
                             errorMessage = error.message;
@@ -69,6 +73,45 @@ export default function LoginComponent() {
                      setIsLoading(false);
               }
        };
+
+       const handleGoogleLogin = async () => {
+              setIsLoading(true);
+              try {
+                     const response = await signInWithGoogle();
+                     if (response.statusCode !== 200) {
+                            toast.error(response.message, { position: 'top-left', theme: resolvedTheme });
+                     } else {
+                            const currentUser = auth.currentUser;
+                            const displayName = currentUser?.displayName;
+                            const email = currentUser?.email;
+
+                            let welcomeMessage = "Welcome!";
+                            if (displayName) {
+                                   welcomeMessage = `Welcome ${displayName}!`;
+                            } else if (email) {
+                                   welcomeMessage = `Welcome ${email}!`;
+                            }
+
+                            if (welcomeMessage) {
+                                   toast.success(welcomeMessage, { position: 'top-left', theme: resolvedTheme });
+                            }
+                            router.replace('/home');
+                     }
+              } catch (error) {
+                     let errorMessage = 'An unexpected error occurred during login.';
+
+                     if (error instanceof Error) {
+                            console.log("🚀 ~ handleGoogleLogin ~ error:", error);
+                            errorMessage = error.message;
+                     }
+                     setLoginError(errorMessage); // Update the state for other uses, if necessary
+                     toast.error(errorMessage, { position: 'top-left', theme: resolvedTheme }); // Use the local variable instead
+              }
+
+              finally {
+                     setIsLoading(false);
+              }
+       }
 
        return (
               <div
@@ -126,24 +169,25 @@ export default function LoginComponent() {
                                    </Button>
                             </form>
                             <div className="flex items-center gap-4 py-2">
-                                                        <Divider className="flex-1" />
-                                                        <p className="shrink-0 text-tiny text-default-500">OR</p>
-                                                        <Divider className="flex-1" />
-                                                 </div>
+                                   <Divider className="flex-1" />
+                                   <p className="shrink-0 text-tiny text-default-500">OR</p>
+                                   <Divider className="flex-1" />
+                            </div>
                             <Button
                                    startContent={<Icon icon="flat-color-icons:google" width={24} />}
                                    variant="bordered"
                                    size="lg"
+                                   onClick={handleGoogleLogin}
                             >
                                    Continue with Google
                             </Button>
-                            <Button
+                            {/* <Button
                                    startContent={<Icon className="text-default-500" icon="fe:github" width={24} />}
                                    variant="bordered"
                                    size="lg"
                             >
                                    Continue with Github
-                            </Button>
+                            </Button> */}
                             <p className="text-center text-large">
                                    Need to create an account?&nbsp;
                                    <Link href="/signup" size="lg">

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
-import auth from './firebase/config';
 
 const routesForEveryone = [
        '/login',
@@ -11,19 +10,19 @@ const routesForEveryone = [
 
 const routesForLoggedInUsers = [
        '/dashboard',
-       '/profile',
+       '/home',
+       '/settings'
 ];
 
 export async function middleware(req: NextRequest) {
-       console.log("========== : ", auth.currentUser)
        const url = req.nextUrl.clone(); // Clone the request URL to modify it
-       const token = req.cookies.get('token');
 
        let isValidToken = false;
 
        // Only verify token if one is present
-       if (token) {
-              const verifyResponse = await fetch(`${req.nextUrl.origin}/api/verifyToken`, {
+       if (req.cookies.get('token')) {
+              const token = req.cookies.get('token')?.value;
+              const verifyResponse = await fetch(`http://localhost:3000/api/verifyToken`, {
                      method: 'POST',
                      headers: { 'Content-Type': 'application/json' },
                      body: JSON.stringify({ token }),
@@ -40,7 +39,7 @@ export async function middleware(req: NextRequest) {
        if (routesForEveryone.includes(url.pathname)) {
               if (isValidToken) {
                      // User is logged in but trying to access a public route like /login, redirect to /dashboard
-                     url.pathname = '/profile';
+                     url.pathname = '/home';
                      return NextResponse.redirect(url);
               }
               // Proceed as normal for non-logged in users

@@ -1,18 +1,19 @@
-import { NextResponse } from "next/server";
-import auth from "../config";
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import auth from '@/firebase/config';
 import { FirebaseError } from 'firebase/app';
-import { signInWithEmailAndPassword } from "firebase/auth";
 import translateFirebaseErrorCode from "@/firebase/translateFirebaseErrorCode";
-import {CustomReturnType} from "@/interfaces/customError";
+import { CustomReturnType } from "@/interfaces/customError";
 
-export default async function logIn(email: string, password: string): Promise<CustomReturnType> {
+export default async function signInWithGoogle(): Promise<CustomReturnType>{
+       const provider = new GoogleAuthProvider();
        try {
-              const userCredential = await signInWithEmailAndPassword(auth, email, password);
-              const token = await userCredential.user.getIdToken();
+              const result = await signInWithPopup(auth, provider);
+              const token = await result.user.getIdToken();
+
               const response = await fetch('http://localhost:3000/api/verifyToken', {
                      method: 'POST',
                      headers: { 'Content-Type': 'application/json' },
-                     body: JSON.stringify({token}),
+                     body: JSON.stringify({ token }),
               });
 
               if (!response.ok) {

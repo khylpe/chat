@@ -1,33 +1,46 @@
 "use server"
 import getFirebaseAdmin from '@/firebase/firebaseAdmin'; // Ensure this import path matches your setup
-import { type NextRequest, NextResponse } from 'next/server';
-
+import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
        const requestData = await req.json();
-       const { value: token } = requestData.token;
+       const { token } = requestData; // Assuming this is the correct way to access your token
 
        if (!token) {
-              return new NextResponse('Auth token not found',
-                     { status: 401, headers: { 'Content-Type': 'text/plain' } }
-              );
+              console.log("no token")
+              return new NextResponse('Token is missing', {
+                     status: 401,
+                     statusText: 'Token is missing',
+                     headers: { 'Content-Type': 'text/plain' },
+              });
        }
 
        try {
+              console.log("we are in try block")
               const admin = await getFirebaseAdmin();
               const decodedToken = await admin.auth().verifyIdToken(token);
 
               if (!decodedToken) {
-                     throw new Error('Invalid token');
+                     return new NextResponse('Invalid token', {
+                            status: 401,
+                            statusText: 'Invalid token',
+                            headers: { 'Content-Type': 'text/plain' },
+                     });
               }
 
-              return new NextResponse(JSON.stringify({ isValidToken: true, decodedToken }),
-                     { status: 200, headers: { 'Content-Type': 'text/plain' }, }
-              );
+              const response = new NextResponse(JSON.stringify({ isValidToken: true }), {
+                     status: 200,
+                     headers: { 'Content-Type': 'application/json' }, // Ensure correct content type for JSON response
+              });
+
+              response.cookies.set('token', token, { httpOnly: true, path: '/' });
+              response.cookies.set('uid', decodedToken.uid, { httpOnly: true, path: '/' });
+              return response;
 
        } catch (error) {
-              console.log("🚀 ~ POST ~ error:", error)
-              return new NextResponse(`Token is invalid: ${error}`,
-                     { status: 401, headers: { 'Content-Type': 'text/plain' } }
-              );
+              return new NextResponse(`Token is invalid: ${error}`, {
+                     status: 401,
+                     headers: { 'Content-Type': 'text/plain' },
+              });
        }
 }
+

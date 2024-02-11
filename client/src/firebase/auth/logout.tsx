@@ -1,18 +1,15 @@
-import { NextResponse } from "next/server";
+import { signOut } from "firebase/auth";
 import auth from "../config";
 import { FirebaseError } from 'firebase/app';
-import { signInWithEmailAndPassword } from "firebase/auth";
-import translateFirebaseErrorCode from "@/firebase/translateFirebaseErrorCode";
-import {CustomReturnType} from "@/interfaces/customError";
+import { CustomReturnType } from "@/interfaces/customError";
+import translateFirebaseErrorCode from "../translateFirebaseErrorCode";
 
-export default async function logIn(email: string, password: string): Promise<CustomReturnType> {
+export default async function logOut(): Promise<CustomReturnType> {  
        try {
-              const userCredential = await signInWithEmailAndPassword(auth, email, password);
-              const token = await userCredential.user.getIdToken();
-              const response = await fetch('http://localhost:3000/api/verifyToken', {
+              await signOut(auth);
+              const response = await fetch('http://localhost:3000/api/logout', {
                      method: 'POST',
                      headers: { 'Content-Type': 'application/json' },
-                     body: JSON.stringify({token}),
               });
 
               if (!response.ok) {
