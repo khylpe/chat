@@ -1,57 +1,61 @@
-"use client"
-import React, { useEffect, useState } from "react"; // Import useState
-import { Button, Input, Link, Divider, Tooltip } from "@nextui-org/react";
-import { AnimatePresence, motion } from "framer-motion";
+"use client";
+import React from "react";
+import { Card, Tabs, Tab } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { WhiteLogo, BlackLogo } from "@/components/logos";
-import { useTheme } from 'next-themes';
-import signUp from "@/firebase/auth/signup";
-import auth from "@/firebase/config";
-import { onAuthStateChanged } from "firebase/auth";
-import { User } from "firebase/auth"; // Import the User type
 
-export default function Settings() {
-       const { resolvedTheme } = useTheme();
-       const [currentUser, setCurrentUser] = useState<User | null>(null);
-       const [isAdmin, setIsAdmin] = useState(false);
+import AccountDetails from "@/components/settings/account-details"
+import NotificationsSettings from "@/components/settings/notifications-settings";
+import SecuritySettings from "@/components/settings//security-settings";
 
-       useEffect(() => {
-              const unsubscribe = onAuthStateChanged(auth, (user) => {
-                     if (user) {
-                            // User is signed in
-                            console.log(user);
-                            setCurrentUser(user); // Update state with current user
-
-                            user.getIdTokenResult()
-                                   .then((idTokenResult) => {
-                                          // Get the custom claims
-                                          const claims = idTokenResult.claims;
-
-                                          if (claims.admin) {
-                                                 setIsAdmin(true);
-                                          }
-                                          // You can now use these claims to perform operations or check privileges
-                                          console.log(claims);
-                                   })
-                                   .catch((error) => {
-                                          console.log(error);
-                                   });
-
-                     } else {
-                            // User is signed out
-                            console.log("User is not signed in");
-                            setCurrentUser(null); // Clear current user in state
-                     }
-              });
-              return () => unsubscribe();
-       }, []);
-
+export default function Component() {
        return (
-              <div>
-                     {currentUser && (
-                            <div>
-                            </div>
-                     )}
+              <div className="m-10">
+                     <Card>
+                            <Tabs
+                                   classNames={{
+                                          tabList: "mx-4 mt-6 text-medium",
+                                          tabContent: "text-small",
+                                   }}
+                                   size="lg"
+                            >
+                                   <Tab
+                                          key="account-settings"
+                                          textValue="Account Settings"
+                                          title={
+                                                 <div className="flex items-center gap-1.5">
+                                                        <Icon icon="solar:user-id-bold" width={20} />
+                                                        <p>Account</p>
+                                                 </div>
+                                          }
+                                   >
+                                          <AccountDetails className="p-2  shadow-none" />
+                                   </Tab>
+                                   <Tab
+                                          key="notifications-settings"
+                                          textValue="Notification Settings"
+                                          title={
+                                                 <div className="flex items-center gap-1.5">
+                                                        <Icon icon="solar:bell-bold" width={20} />
+                                                        <p>Notifications</p>
+                                                 </div>
+                                          }
+                                   >
+                                          <NotificationsSettings className="p-2  shadow-none" />
+                                   </Tab>
+                                   <Tab
+                                          key="security-settings"
+                                          textValue="Security Settings"
+                                          title={
+                                                 <div className="flex items-center gap-1.5">
+                                                        <Icon icon="solar:shield-keyhole-bold" width={20} />
+                                                        <p>Security</p>
+                                                 </div>
+                                          }
+                                   >
+                                          <SecuritySettings className="p-2  shadow-none" />
+                                   </Tab>
+                            </Tabs>
+                     </Card>
               </div>
        );
 }

@@ -6,7 +6,7 @@ import React from "react";
 import { Listbox, Tooltip, ListboxItem, ListboxSection } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 
-import { cn } from "./cn";
+import { cn } from "../cn";
 
 export type SidebarItem = {
        key: string;

@@ -3,8 +3,9 @@ import auth from '@/firebase/config';
 import { FirebaseError } from 'firebase/app';
 import translateFirebaseErrorCode from "@/firebase/translateFirebaseErrorCode";
 import { CustomReturnType } from "@/interfaces/customError";
+import assignCustomClaimsIfNeeded from './assignCustomClaimsIfNeeded';
 
-export default async function signInWithGoogle(): Promise<CustomReturnType>{
+export default async function signInWithGoogle(): Promise<CustomReturnType> {
        const provider = new GoogleAuthProvider();
        try {
               const result = await signInWithPopup(auth, provider);
@@ -19,6 +20,9 @@ export default async function signInWithGoogle(): Promise<CustomReturnType>{
               if (!response.ok) {
                      return { code: 'internal-server-error', message: response.statusText, statusCode: response.status };
               }
+
+              if (result.user.email && result.user.uid)
+                     await assignCustomClaimsIfNeeded(result.user.email, result.user.uid);
 
               return { code: 'success', message: 'Login successful', statusCode: 200 };
        } catch (error) {

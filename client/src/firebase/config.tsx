@@ -1,6 +1,7 @@
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
               apiKey: process.env.NEXT_PUBLIC_FIREBASE_APIKEY as string,
@@ -14,8 +15,10 @@ const firebaseConfig = {
 
 // New function to get Auth instance
 const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
 
 const auth = getAuth(app);
 
 // const analytics = getAnalytics(app);
 export default auth;
+export { storage };

@@ -5,7 +5,7 @@ import type { ModalProps } from "@nextui-org/react";
 import React from "react";
 import { Modal, ModalBody, ModalContent } from "@nextui-org/react";
 
-import { cn } from "./cn";
+import { cn } from "../cn";
 
 const SidebarDrawer = React.forwardRef<HTMLDivElement, ModalProps>(
        ({ children, className, onOpenChange, isOpen, classNames = {}, ...props }, ref) => (
