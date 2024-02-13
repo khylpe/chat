@@ -1,7 +1,7 @@
 "use client";
 
 import type { CardProps } from "@nextui-org/react";
-import { ref as firebaseRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref as firebaseRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage } from "@/firebase/config";
 import React, { useRef, useEffect, useState, ChangeEvent } from "react";
 import { updateProfile, updateCurrentUser, reload } from "firebase/auth";
@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { User, onAuthStateChanged } from "firebase/auth";
 import auth from "@/firebase/config";
+import { set } from "firebase/database";
 
 type UserProfile = {
        username: string;
@@ -38,6 +39,7 @@ export default function Component(props: CardProps) {
        const [currentUser, setCurrentUser] = useState<User | null>(null);
        const fileInputRef = useRef<HTMLInputElement>(null);
        const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+       const [deleteProfilePicture, setDeleteProfilePicture] = useState(false);
 
        const [profile, setProfile] = useState<UserProfile>({
               username: '',
@@ -55,7 +57,7 @@ export default function Component(props: CardProps) {
                      if (user) {
                             console.log(user)
                             setCurrentUser(user);
-
+                            console.log("========", user.photoURL)
                             user.getIdTokenResult()
                                    .then((idTokenResult) => {
                                           const claims = idTokenResult.claims;
@@ -95,40 +97,76 @@ export default function Component(props: CardProps) {
        };
 
        const saveChanges = async () => {
-              if (!currentUser || !hasChanges()) return;
+              // Ensure there's a currentUser to update.
+              if (!currentUser) return;
 
+              // Check if there are changes or a deletion request.
+              if (!hasChanges() && !deleteProfilePicture) return;
 
-              if (profile.profilePicture) {
+              // Handle profile picture upload/update.
+              if (profile.profilePicture && !deleteProfilePicture) {
                      try {
-                            const storageRef = firebaseRef(storage, `profilePictures/${currentUser.uid}/${profile.profilePicture?.name}`);
+                            const storageRef = firebaseRef(storage, `${currentUser.uid}/photoURL`);
                             const snapshot = await uploadBytes(storageRef, profile.profilePicture);
                             const photoURL = await getDownloadURL(snapshot.ref);
 
-                            await updateProfile(currentUser, {
-                                   photoURL: photoURL
-                            }).then(() => {
-                                   setCurrentUser({ ...currentUser, photoURL: photoURL });
-                                   setPreviewUrl(null);
-                            }).catch((error) => {
-                                   console.error("Error updating user profile:", error);
-                            });
-                            updateCurrentUser(auth, currentUser);
+                            await updateProfile(currentUser, { photoURL });
+                            setCurrentUser({ ...currentUser, photoURL });
+                            setPreviewUrl(null);
+                            setProfile({ ...profile, profilePicture: null });
                             setInitialProfile({ ...profile });
+                            updateCurrentUser(auth, currentUser);
+
                      } catch (error) {
                             console.error("Upload failed", error);
                      }
               }
+
+              // Handle profile picture deletion.
+              if (deleteProfilePicture) {
+                     try {
+                            const filePath = `${currentUser.uid}/photoURL`;
+                            const storageRef = firebaseRef(storage, filePath);
+
+                            await deleteObject(storageRef);
+
+                            // After deletion, update the user's profile to remove the photoURL.
+
+                            const test = firebaseRef(storage, `77.png`);
+                            const photoURL = await getDownloadURL(test);
+                            await updateProfile(currentUser, { photoURL });
+                            // Update state to reflect the deletion.
+                            setCurrentUser({ ...currentUser, photoURL });
+                            setPreviewUrl(null);
+                            // Reset the deletion flag.
+                            setDeleteProfilePicture(false);
+                            updateCurrentUser(auth, currentUser);
+
+                     } catch (error) {
+                            console.error("Error removing file from storage:", error);
+                     }
+              }
+
+              // This line was previously inside the if block, it should be outside to ensure the current user is always updated.
        };
 
        const hasChanges = () => {
               return profile.username !== initialProfile.username ||
                      profile.selectedCountry !== initialProfile.selectedCountry ||
-                     profile.profilePicture !== initialProfile.profilePicture;
+                     profile.profilePicture !== initialProfile.profilePicture ||
+                     deleteProfilePicture;
        };
 
        const triggerFileInput = () => {
               fileInputRef.current?.click(); // Programmatically click the invisible file input
        };
+
+       const removeProfilePicture = () => {
+              console.log('Remove profile picture')
+              setDeleteProfilePicture(true);
+              setPreviewUrl(null);
+       };
+
        return (
               <Card className="max-w-xl p-2" {...props}>
                      <CardHeader className="flex flex-col items-start px-4 pb-0 pt-4">
@@ -143,6 +181,7 @@ export default function Component(props: CardProps) {
 
                                    <Badge
                                           disableOutline
+                                          isInvisible={deleteProfilePicture || !currentUser?.photoURL || currentUser.photoURL.includes("77.png")}  
                                           classNames={{
                                                  badge: "w-6 h-6",
                                           }}
@@ -150,15 +189,16 @@ export default function Component(props: CardProps) {
                                           content={
                                                  // upload photo button
                                                  <Tooltip content="Remove Photo" placement="right" showArrow color="danger" size="md">
-                                                 <Button
-                                                        isIconOnly
-                                                        className="p-0 text-primary-foreground"
-                                                        radius="full"
-                                                        size="lg"
-                                                        variant="light"
-                                                 >
-                                                        <Icon icon="solar:trash-bin-minimalistic-bold" />
-                                                 </Button>
+                                                        <Button
+                                                               isIconOnly
+                                                               className="p-0 text-primary-foreground"
+                                                               radius="full"
+                                                               size="lg"
+                                                               variant="light"
+                                                               onClick={removeProfilePicture} // Attach the removeProfilePicture function here
+                                                        >
+                                                               <Icon icon="solar:trash-bin-minimalistic-bold" />
+                                                        </Button>
                                                  </Tooltip>
                                           }
                                           placement="bottom-right"
@@ -166,8 +206,9 @@ export default function Component(props: CardProps) {
                                    >
                                           <div className="relative group cursor-pointer ">
                                                  <Avatar
+                                                        // onError={() => { setPreviewUrl("https://cdn.discordapp.com/attachments/1172237649856172182/1172237815195652178/77.png?ex=65d78f0a&is=65c51a0a&hm=5a5ebe84f85a35f741f8bae9aacdfeeb9518bd582655476c1f4c449bfd55eef3&") }}
                                                         className="h-16 w-16 transition duration-300 ease-in-out group-hover:opacity-80"
-                                                        src={previewUrl || currentUser?.photoURL || ""}
+                                                        src={previewUrl || (deleteProfilePicture ? "" : currentUser?.photoURL) || ""}
                                                  />
                                                  <div onClick={triggerFileInput} className="rounded-full absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out">
                                                         <Icon icon="ic:baseline-photo-camera" className="text-white h-6 w-6" />
@@ -227,14 +268,15 @@ export default function Component(props: CardProps) {
                                    Cancel
                             </Button>
                             <Button
-                                   disabled={!hasChanges()} // Disable if there are no changes
+                                   isDisabled={!hasChanges()} // Disable if there are no changes
 
                                    color="primary"
                                    radius="full"
                                    onClick={saveChanges}
                             >
                                    Save Changes
-                            </Button>                     </CardFooter>
+                            </Button>
+                     </CardFooter>
               </Card>
        );
 }
