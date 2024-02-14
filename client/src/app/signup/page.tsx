@@ -92,36 +92,8 @@ export default function Component() {
               try {
                      const response = await signUp(email, password);
                      if (response && response.uid) {
-                            try {
-                                   const response = await signIn(email, password);
-                                   if (response.statusCode !== 200) {
-                                          toast.error(response.message, { position: 'top-left', theme: resolvedTheme });
-                                   } else {
-                                          const currentUser = auth.currentUser;
-                                          const displayName = currentUser?.displayName;
-                                          const email = currentUser?.email;
-
-                                          let welcomeMessage = "Welcome!";
-                                          if (displayName) {
-                                                 welcomeMessage = `Welcome ${displayName}!`;
-                                          } else if (email) {
-                                                 welcomeMessage = `Welcome ${email}!`;
-                                          }
-
-                                          if (welcomeMessage) {
-                                                 toast.success(welcomeMessage, { position: 'top-left', theme: resolvedTheme });
-                                          }
-                                          router.replace('/home');
-                                   }
-                            } catch (error) {
-                                   let errorMessage = 'An unexpected error occurred during login.';
-
-                                   if (error instanceof Error) {
-                                          console.log("🚀 ~ handleLogin ~ error:", error);
-                                          errorMessage = error.message;
-                                   }
-                                   toast.error(errorMessage, { position: 'top-left', theme: resolvedTheme }); // Use the local variable instead
-                            }
+                            toast.success('Account created successfully. You must verify your email now!', { position: 'top-right', theme: resolvedTheme });
+                            router.replace('/login');
                      }
               } catch (error) {
                      if (error instanceof Error) {
