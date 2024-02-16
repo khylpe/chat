@@ -117,6 +117,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
 
               return (
                      <Listbox
+                            label="Sidebar"
                             key={isCompact ? "compact" : "default"}
                             ref={ref}
                             hideSelectedIcon
