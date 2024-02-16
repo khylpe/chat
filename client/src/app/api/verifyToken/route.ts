@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
               console.log("we are in try block")
               const admin = await getFirebaseAdmin();
               const decodedToken = await admin.auth().verifyIdToken(token, true);
-              
+
               console.log("🚀 ~ POST ~ decodedToken.exp:", decodedToken.exp);
               console.log("🚀 ~ POST ~ decodedToken.exp:", decodedToken.iat);
 
@@ -32,14 +32,17 @@ export async function POST(req: NextRequest) {
 
               // check if mail is verified
               const user = await admin.auth().getUser(decodedToken.uid);
-              if (!user.emailVerified) {
-                     return new NextResponse('Email not verified', {
-                            status: 401,
-                            statusText: 'Email not verified',
-                            headers: { 'Content-Type': 'text/plain' },
-                     });
-              }
+              const emailPasswordLogin = user.providerData.some(provider => provider.providerId === 'password');
 
+              if (emailPasswordLogin) {
+                     if (!user.emailVerified) {
+                            return new NextResponse('Email not verified', {
+                                   status: 401,
+                                   statusText: 'Email not verified',
+                                   headers: { 'Content-Type': 'text/plain' },
+                            });
+                     }
+              }
               const response = new NextResponse(JSON.stringify({ isValidToken: true }), {
                      status: 200,
                      headers: { 'Content-Type': 'application/json' }, // Ensure correct content type for JSON response
